@@ -110,4 +110,5 @@ jobs:
             .lighthouseci/
             lychee/
           if-no-files-found: ignore
+          include-hidden-files: true # .lighthouseci is a hidden folder
           retention-days: 14

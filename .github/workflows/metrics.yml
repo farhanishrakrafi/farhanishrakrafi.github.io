@@ -13,6 +13,11 @@ permissions:
   contents: write
   actions: write
 
+# Never run two refreshes at once: both would try to push the same file.
+concurrency:
+  group: metrics
+  cancel-in-progress: false
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -37,6 +42,7 @@ jobs:
           file=src/data/generated/publications.enriched.json
           if git diff --quiet -I '"checkedAt"' -- "$file"; then
             echo "No changes in publication data."
+            echo "No changes in publication data or citation counts." >> "$GITHUB_STEP_SUMMARY"
             git checkout -- "$file"
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -45,6 +51,7 @@ jobs:
             git add "$file"
             git commit -m "Refresh publication metadata and citation counts"
             git push
+            echo "Updated publication data; the site is being redeployed." >> "$GITHUB_STEP_SUMMARY"
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 

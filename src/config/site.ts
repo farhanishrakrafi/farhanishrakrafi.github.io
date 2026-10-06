@@ -8,14 +8,14 @@
  */
 
 /** Origin used for canonical URLs when no SITE_URL is given (local builds). */
-const defaultUrl = 'https://farhanishraq184-max.github.io';
+const defaultUrl = 'https://farhanishrakrafi.github.io';
 
 /**
- * Sub-path the site is served from. A repository named `<username>.github.io`
- * is served from the root, so use ''. Any other repository name, such as
- * `Website`, is served from `/<repository-name>`.
+ * Sub-path the site is served from. This repository is named
+ * `farhanishrakrafi.github.io`, so GitHub serves it from the root: ''.
+ * A repository with any other name is served from `/<repository-name>`.
  */
-const defaultBase = '/Website';
+const defaultBase = '';
 
 function cleanBase(value: string): string {
   const trimmed = value.trim().replace(/^\/+|\/+$/g, '');
@@ -26,7 +26,7 @@ export const SITE = {
   url: (process.env.SITE_URL || defaultUrl).replace(/\/+$/, ''),
   base: cleanBase(process.env.BASE_PATH ?? defaultBase),
   /** Public source repository, linked from the footer. */
-  repository: 'https://github.com/farhanishraq184-max/Website',
+  repository: 'https://github.com/farhanishrakrafi/farhanishrakrafi.github.io',
   lang: 'en',
   locale: 'en_GB',
   titleSuffix: 'Farhan Ishrak Rafi',
