@@ -99,6 +99,20 @@ jobs:
       - name: Lighthouse budgets (mobile)
         run: npx --yes @lhci/cli@0.15.1 autorun
 
+      # Prints which element moved and why, so a failure can be fixed from the log alone.
+      - name: Explain Lighthouse results
+        if: always() && hashFiles('.lighthouseci/lhr-*.json') != ''
+        run: |
+          for f in .lighthouseci/lhr-*.json; do
+            jq -r '
+              "\(.finalDisplayedUrl)  performance=\(.categories.performance.score)  CLS=\(.audits["cumulative-layout-shift"].numericValue)  LCP=\(.audits["largest-contentful-paint"].numericValue | floor)ms",
+              (.audits["layout-shifts"].details.items[]? |
+                "  shift \(.score)  \(.node.selector)  rect=\(.node.boundingRect | "\(.left),\(.top) \(.width)x\(.height)")\n    \(.node.snippet)\n    causes: \([.subItems.items[]? | "\(.cause) \(.extra.value? // "" | tostring)"] | join("; "))")
+            ' "$f"
+          done | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "Publication data used by this build:"
+          jq -r '.records[] | "  \(.doi): \(.crossref.authors // [] | length) authors; abstract \(.crossref.abstract // "" | length) characters"' src/data/generated/publications.enriched.json
+
       - name: Keep reports
         if: always()
         uses: actions/upload-artifact@v7

@@ -25,8 +25,13 @@ function cleanBase(value: string): string {
 export const SITE = {
   url: (process.env.SITE_URL || defaultUrl).replace(/\/+$/, ''),
   base: cleanBase(process.env.BASE_PATH ?? defaultBase),
-  /** Public source repository, linked from the footer. */
-  repository: 'https://github.com/farhanishrakrafi/farhanishrakrafi.github.io',
+  /**
+   * Public source repository, linked from the footer. GitHub Actions supplies
+   * the real one on every deploy, so a renamed repository updates itself.
+   */
+  repository: process.env.GITHUB_REPOSITORY
+    ? `${process.env.GITHUB_SERVER_URL ?? 'https://github.com'}/${process.env.GITHUB_REPOSITORY}`
+    : 'https://github.com/farhanishrakrafi/farhanishrakrafi.github.io',
   lang: 'en',
   locale: 'en_GB',
   titleSuffix: 'Farhan Ishrak Rafi',

@@ -15,7 +15,7 @@ const { items } = Astro.props;
 <ul class="flex flex-col gap-4">
   {
     items.map((item) => (
-      <li class="grid gap-1 sm:grid-cols-[9rem_1fr] sm:gap-4">
+      <li id={item.id} class="grid gap-1 sm:grid-cols-[9rem_1fr] sm:gap-4">
         <time class="text-muted text-sm sm:pt-0.5" datetime={isoDate(item.data.date)}>
           {formatDate(item.data.date)}
         </time>

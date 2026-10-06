@@ -15,9 +15,11 @@ GitHub Pages is switched on, and the site is live.
 
 ### Still to do (all free)
 
-1. **Photo.** Open the [`src/assets`](src/assets) folder on GitHub, click **Add file > Upload files**,
-   drag your headshot in and click **Commit changes**. Details are in [src/assets/README.md](src/assets/README.md).
-   Until then the site shows your initials.
+1. **Photo.** First remove the location data that phones store in photos (this repository is public;
+   [how to](src/assets/README.md)). Then open the [`src/assets`](src/assets) folder on GitHub, click
+   **Add file > Upload files**, drag your headshot in and click **Commit changes**.
+   Until then the site shows your initials. If a photo still holds its location, the site will not
+   update and the failed run in the **Actions** tab says so.
 2. **Confirm the facts marked `CONFIRM`** (list below). Easiest: ask Claude Code to walk you through them.
 3. **ORCID and Google Scholar.** Create both (use the exact name "Farhan Ishrak Rafi"), claim the *Scientific Reports* paper,
    and paste the profile URLs into `links` in `src/data/profile.yaml`. Empty links stay hidden.
@@ -47,9 +49,10 @@ Search the repository for `CONFIRM` to find every item below.
 
 ### If you ever move the site
 
-The deploy workflow reads the live address from GitHub Pages on every build, so a renamed repository
-or a custom domain keeps working. Only local builds use `defaultUrl`, `defaultBase` and `repository`
-in `src/config/site.ts`; update those three values to match.
+The deploy workflow reads the live address from GitHub Pages and the repository name from GitHub
+on every build, so the live site keeps its canonical links, sitemap, RSS feed and footer links correct
+after a rename or a custom domain. Builds on your own computer use `defaultUrl`, `defaultBase` and the
+fallback `repository` value in `src/config/site.ts`; update those to match.
 
 ---
 

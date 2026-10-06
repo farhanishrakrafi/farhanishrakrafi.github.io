@@ -9,9 +9,10 @@ export interface HeroPhoto {
   fallback: string;
 }
 
-// Upper-case extensions too: phones and cameras often save "IMG_1234.JPG".
+// Any letter case: phones and cameras often save "IMG_1234.JPG" or "Photo.Jpg".
+// (Vite needs this pattern written out literally.)
 const assets = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/assets/*.{jpg,jpeg,png,webp,avif,JPG,JPEG,PNG,WEBP,AVIF}',
+  '/src/assets/*.{jpg,JPG,Jpg,jpeg,JPEG,Jpeg,png,PNG,Png,webp,WEBP,Webp,avif,AVIF,Avif}',
   { eager: true },
 );
 
@@ -48,17 +49,27 @@ export function findAsset(fileName: string): ImageMetadata | undefined {
 
 /** Explains in the build log why no photo was used. */
 function warnAboutAssets(images: string[]) {
-  let others: string[] = [];
+  let unusable: string[] = [];
   try {
-    others = readdirSync(resolve(process.cwd(), 'src/assets')).filter((n) => /\.(heic|heif)$/i.test(n));
+    const usable = new Set(images.map((n) => n.toLowerCase()));
+    unusable = readdirSync(resolve(process.cwd(), 'src/assets'), { withFileTypes: true })
+      .filter((e) => e.isFile() && !/^readme\.md$/i.test(e.name) && !e.name.startsWith('.'))
+      .map((e) => e.name)
+      .filter((n) => !usable.has(n.toLowerCase()));
   } catch {
     /* folder missing: nothing to explain */
   }
-  if (others.length) {
-    console.warn(
-      `\n[photo] ${others.join(', ')}: HEIC photos (iPhone format) cannot be used. Save the photo as JPG or PNG and upload that instead.`,
-    );
-  } else if (images.length > 1) {
+  for (const name of unusable) {
+    const reason = /\.(heic|heif)$/i.test(name)
+      ? 'HEIC photos (iPhone format) cannot be used. Save the photo as JPG or PNG and upload that instead.'
+      : /\.jfif$/i.test(name)
+        ? 'a .jfif file is a JPEG with an unusual name. Rename it to end in .jpg.'
+        : /\.(jpe?g|png|webp|avif)$/i.test(name)
+          ? 'rename it so the ending is lower case, for example photo.jpg.'
+          : 'this file type cannot be used. Save the photo as JPG or PNG and upload that instead.';
+    console.warn(`\n[photo] ${name}: ${reason}`);
+  }
+  if (!unusable.length && images.length > 1) {
     console.warn(
       `\n[photo] Several images in src/assets (${images.join(', ')}) and none is named photo.jpg. Rename the headshot to photo.jpg.`,
     );
