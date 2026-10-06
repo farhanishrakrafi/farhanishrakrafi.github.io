@@ -45,7 +45,7 @@ openTo:
 
 # Put the headshot at src/assets/photo.jpg. Until it exists, the site shows initials.
 photo: photo.jpg
-photoAlt: Portrait of Farhan Ishrak Rafi
+photoAlt: Farhan Ishrak Rafi in a lab coat and gloves, working with Petri dishes at a laboratory cabinet
 
 links:
   orcid: ''
