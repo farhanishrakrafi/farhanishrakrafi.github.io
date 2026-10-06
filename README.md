@@ -3,57 +3,37 @@
 A static, zero-cost academic profile built with [Astro](https://astro.build) and hosted on GitHub Pages.
 All content lives in plain YAML and Markdown files; every push to `main` rebuilds and redeploys the site in about three minutes.
 
-- **Live address (once Pages is switched on):** `https://farhanishraq184-max.github.io/Website/`
+- **Live site:** https://farhanishrakrafi.github.io
 - **Specification:** [SPEC.md](SPEC.md). **Rules for AI assistants:** [CLAUDE.md](CLAUDE.md).
 
 ---
 
-## Going live: step by step
+## Setup status
 
-You need only a web browser for steps 1 to 4.
+Done: the repository is `farhanishrakrafi/farhanishrakrafi.github.io`, the code is on `main`,
+GitHub Pages is switched on, and the site is live.
 
-### 1. Choose the address
+### Still to do (all free)
 
-| Option | Address | What to do |
-| --- | --- | --- |
-| A. Keep the repository name `Website` | `https://farhanishraq184-max.github.io/Website/` | Nothing. This works as is. |
-| B. Root address (recommended) | `https://farhanishraq184-max.github.io/` | Repository **Settings > General > Repository name**: rename to `farhanishraq184-max.github.io`. Then in `src/config/site.ts` set `defaultBase = ''` and update `repository`. |
-| C. The spec's address | `https://farhanishrakrafi.github.io/` | Needs a GitHub account named `farhanishrakrafi`, with this code in a repository called `farhanishrakrafi.github.io`. |
-
-The deploy workflow reads the real address from GitHub Pages on every build, so the live site is always correct whichever option you pick.
-The `site.ts` values only matter for builds on your own computer.
-
-### 2. Put the code on `main`
-
-The site deploys from the `main` branch. If the code is on another branch, either merge its pull request into `main`,
-or, if `main` does not exist yet, rename the branch: **Settings > General > Default branch**, click the pencil icon, and rename it to `main`.
-
-### 3. Switch on GitHub Pages
-
-**Settings > Pages > Build and deployment > Source: GitHub Actions.**
-
-### 4. Run the first deploy
-
-**Actions > Deploy to GitHub Pages > Run workflow** (or push any commit to `main`).
-When the run is green, the address appears in the run summary and under **Settings > Pages**.
-
-### 5. Recommended, all free
-
-1. **Photo.** Save a square headshot as `src/assets/photo.jpg`. Until then the site shows your initials.
-2. **OpenAlex key** (citation counts). Create a free key at [openalex.org](https://openalex.org), then
-   **Settings > Secrets and variables > Actions > New repository secret**, name `OPENALEX_API_KEY`.
-   Without it the site still builds; citation counts just stay hidden.
-   Then run **Actions > Refresh citation metrics > Run workflow** once.
+1. **Photo.** First remove the location data that phones store in photos (this repository is public;
+   [how to](src/assets/README.md)). Then open the [`src/assets`](src/assets) folder on GitHub, click
+   **Add file > Upload files**, drag your headshot in and click **Commit changes**.
+   Until then the site shows your initials. If a photo still holds its location, the site will not
+   update and the failed run in the **Actions** tab says so.
+2. **Confirm the facts marked `CONFIRM`** (list below). Easiest: ask Claude Code to walk you through them.
 3. **ORCID and Google Scholar.** Create both (use the exact name "Farhan Ishrak Rafi"), claim the *Scientific Reports* paper,
    and paste the profile URLs into `links` in `src/data/profile.yaml`. Empty links stay hidden.
-4. **Google Search Console.** Add the site as a URL-prefix property, choose the **HTML tag** method,
+4. **OpenAlex key** (citation counts). Create a free key at [openalex.org](https://openalex.org), then
+   **Settings > Secrets and variables > Actions > New repository secret**, name `OPENALEX_API_KEY`.
+   Then run **Actions > Refresh citation metrics > Run workflow** once. Without the key, everything else still works.
+5. **Google Search Console.** Add `https://farhanishrakrafi.github.io/` as a URL-prefix property, choose the **HTML tag** method,
    copy the `content="..."` code into `VERIFICATION.google` in `src/config/site.ts`, commit, wait for the deploy, then click Verify.
    Submit `sitemap-index.xml` under **Sitemaps**. Import the property into Bing Webmaster Tools.
-5. **Analytics (optional, cookieless).** Sign up at [goatcounter.com](https://www.goatcounter.com), then put your code in
+6. **Analytics (optional, cookieless).** Sign up at [goatcounter.com](https://www.goatcounter.com), then put your code in
    `ANALYTICS.goatcounterCode` in `src/config/site.ts`. The footer privacy note updates itself.
-6. **LinkedIn.** Add the website to your contact info, Featured section and email signature.
+7. **LinkedIn.** Add the website to your contact info, Featured section and email signature.
 
-### 6. Confirm before you share the link
+### Confirm before you share the link
 
 Search the repository for `CONFIRM` to find every item below.
 
@@ -66,6 +46,13 @@ Search the repository for `CONFIRM` to find every item below.
 - [ ] Which draft projects may go public, and with what wording.
 - [ ] Professional experience shows only what is already public on LinkedIn.
 - [ ] The two draft notes in `src/content/notes/` (they stay hidden until `draft: false`).
+
+### If you ever move the site
+
+The deploy workflow reads the live address from GitHub Pages and the repository name from GitHub
+on every build, so the live site keeps its canonical links, sitemap, RSS feed and footer links correct
+after a rename or a custom domain. Builds on your own computer use `defaultUrl`, `defaultBase` and the
+fallback `repository` value in `src/config/site.ts`; update those to match.
 
 ---
 
@@ -81,7 +68,7 @@ Every routine update is a one-file edit. Commit it on GitHub (press `.` in the r
 | Update the CV | `src/data/cv.yaml`. The PDF at `/cv.pdf` is rebuilt from it automatically. | 5 min |
 | Change the availability banner | `availability` in `src/data/profile.yaml`; `''` hides it | 1 min |
 | Add an organism or gene to auto-italics | `src/data/italic-terms.yaml` | 1 min |
-| Replace the photo | `src/assets/photo.jpg`, same file name | 1 min |
+| Replace the photo | Upload the new one to `src/assets/` with the same file name | 1 min |
 | Publish a note | Set `draft: false` in its file in `src/content/notes/` | 1 min |
 | Show a 3D docking pose | Put the PDB or SDF file in `public/structures/`, then add `<MoleculeViewer structure="file.pdb" ligand="LIG" alt="..." caption="..." />` to a published project | 10 min |
 
@@ -106,7 +93,7 @@ Needs [Node.js](https://nodejs.org) 22.12 or newer (24 recommended) and Git.
 
 ```bash
 npm install          # also installs the pre-commit check
-npm run dev          # local preview at http://localhost:4321/Website/ (drafts are visible here only)
+npm run dev          # local preview at http://localhost:4321/ (drafts are visible here only)
 npm run build        # fetch publication data, build the site and the search index into dist/
 npm run check        # type check
 npm run lint         # privacy, em dash and PDF size checks

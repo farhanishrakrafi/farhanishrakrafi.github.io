@@ -1,10 +1,17 @@
 /**
  * Blocks personal data from the public repository (SPEC.md section 11).
- * Fails on phone-number patterns and on CV fields that must never be published.
+ * Fails on phone-number patterns, on CV fields that must never be published,
+ * and on photos that still carry the GPS location where they were taken.
  */
-import { listFiles, scan } from './lib.ts';
+import { readdirSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import exifReader from 'exif-reader';
+import sharp from 'sharp';
+import { ROOT, listFiles, scan } from './lib.ts';
 
-const files = listFiles(['src', 'cv', 'public'], (p) => p.startsWith('cv/private') || p.includes('node_modules'));
+const SCAN_DIRS = ['src', 'cv', 'public'];
+const skip = (p: string) => p.startsWith('cv/private') || p.includes('node_modules');
+const files = listFiles(SCAN_DIRS, skip);
 
 const rules: Array<{ name: string; pattern: RegExp }> = [
   // Bangladesh mobile numbers: 01XXXXXXXXX, +8801XXXXXXXXX, 880-1XXX-XXXXXX
@@ -24,8 +31,51 @@ for (const rule of rules) {
   }
 }
 
+/** Every JPEG, PNG, WebP, AVIF, TIFF or HEIC file under the scanned folders. */
+function listImages(): string[] {
+  const out: string[] = [];
+  const walk = (dir: string) => {
+    let entries: string[];
+    try {
+      entries = readdirSync(dir);
+    } catch {
+      return;
+    }
+    for (const name of entries) {
+      const full = join(dir, name);
+      const rel = relative(ROOT, full);
+      if (skip(rel)) continue;
+      if (statSync(full).isDirectory()) walk(full);
+      else if (/\.(jpe?g|jfif|png|webp|avif|tiff?|heic|heif)$/i.test(name)) out.push(rel);
+    }
+  };
+  SCAN_DIRS.forEach((d) => walk(join(ROOT, d)));
+  return out;
+}
+
+const images = listImages();
+for (const image of images) {
+  let hasGps = false;
+  try {
+    const { exif } = await sharp(join(ROOT, image)).metadata();
+    if (exif) {
+      const tags = exifReader(exif) as { GPSInfo?: Record<string, unknown> };
+      hasGps = Boolean(tags.GPSInfo && Object.keys(tags.GPSInfo).length);
+    }
+  } catch {
+    // Formats sharp cannot read (for example HEIC) are explained by the photo build step.
+  }
+  if (hasGps) {
+    console.error(
+      `Photo location (GPS): ${image} records where it was taken. This repository is public, so replace it with a copy ` +
+        'without location data (see src/assets/README.md), then remove the old file.',
+    );
+    failed++;
+  }
+}
+
 if (failed) {
   console.error(`\ncheck-privacy: ${failed} problem(s). Remove personal data before committing (SPEC.md section 11).`);
   process.exit(1);
 }
-console.log(`check-privacy: ${files.length} files clean.`);
+console.log(`check-privacy: ${files.length} files and ${images.length} images clean.`);

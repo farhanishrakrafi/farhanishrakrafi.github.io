@@ -1,6 +1,6 @@
 /**
  * Every internal link goes through `url()`, so the site works both at a
- * domain root and under a sub-path such as /Website/.
+ * domain root and under a sub-path such as /my-repository/.
  */
 const BASE = import.meta.env.BASE_URL.replace(/\/+$/, '');
 

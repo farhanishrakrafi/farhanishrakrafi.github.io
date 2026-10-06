@@ -66,8 +66,8 @@
   --color-border: var(--border);
   --color-primary-soft: var(--primary-soft);
 
-  --font-serif: 'Source Serif 4', ui-serif, Georgia, serif;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Source Serif 4', 'Source Serif 4 Fallback', ui-serif, Georgia, serif;
+  --font-sans: 'Inter', 'Inter Fallback', 'Inter Fallback Android', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Type scale, ratio 1.25 from a 17 px base. */
@@ -87,6 +87,64 @@
   --radius-card: 10px;
   --container-content: 1120px;
   --container-prose: 720px;
+}
+
+/* ------------------------------------------------------------ fallback fonts */
+/*
+ * Until Inter and Source Serif 4 arrive, text is drawn with a common system
+ * font scaled to the same width and line height, so nothing re-wraps or jumps
+ * when the web font swaps in (layout shift). Arial and its metric clones
+ * (Liberation Sans, Arimo) cover Windows, macOS, iOS and Linux; Roboto covers
+ * Android. Values come from comparing advance widths over the site's own text.
+ */
+@font-face {
+  font-family: 'Inter Fallback';
+  font-weight: 400;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'), local('Arimo');
+  size-adjust: 106.91%;
+  ascent-override: 90.61%;
+  descent-override: 22.56%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Inter Fallback';
+  font-weight: 600;
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold'), local('Arimo Bold');
+  size-adjust: 101.67%;
+  ascent-override: 95.28%;
+  descent-override: 23.72%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Inter Fallback Android';
+  font-weight: 400;
+  src: local('Roboto'), local('Roboto-Regular'), local('Roboto Regular');
+  size-adjust: 107.41%;
+  ascent-override: 90.19%;
+  descent-override: 22.46%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Inter Fallback Android';
+  font-weight: 600;
+  src: local('Roboto Bold'), local('Roboto-Bold');
+  size-adjust: 107.48%;
+  ascent-override: 90.13%;
+  descent-override: 22.44%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Source Serif 4 Fallback';
+  font-weight: 600;
+  src: local('Times New Roman Bold'), local('TimesNewRomanPS-BoldMT'), local('Liberation Serif Bold'), local('LiberationSerif-Bold'), local('Tinos Bold');
+  size-adjust: 111.63%;
+  ascent-override: 92.81%;
+  descent-override: 30.01%;
+  line-gap-override: 0%;
 }
 
 /* ------------------------------------------------------------ base */

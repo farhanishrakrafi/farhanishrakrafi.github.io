@@ -1,10 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
+import { SITE } from './src/config/site.ts';
 
 /**
  * Runs against the built site (`npm run build` first) served by `astro preview`.
- * BASE_PATH must match the build: '' for a root build, '/Website' for the default.
+ * The base path comes from src/config/site.ts (or BASE_PATH), the same as the build.
  */
-const base = (process.env.BASE_PATH ?? '/Website').replace(/\/+$/, '');
+const base = SITE.base;
 const port = Number(process.env.PORT ?? 4321);
 const executablePath = process.env.CHROMIUM_PATH || undefined;
 

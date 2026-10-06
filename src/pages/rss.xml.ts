@@ -12,7 +12,8 @@ export async function GET(context: APIContext) {
       title: n.data.text.length > 90 ? `${n.data.text.slice(0, 87)}...` : n.data.text,
       description: n.data.text,
       pubDate: n.data.date,
-      link: n.data.link ?? absoluteUrl('/news/', context.site),
+      // Each item needs its own link: feed readers use it as the item's id.
+      link: n.data.link ?? `${absoluteUrl('/news/', context.site)}#${n.id}`,
     })),
     ...notes.map((n) => ({
       title: n.data.title,
