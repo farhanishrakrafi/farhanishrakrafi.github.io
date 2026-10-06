@@ -1,0 +1,33 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  src: ImageMetadata;
+  /** Required: describe what the figure shows. */
+  alt: string;
+  caption?: string;
+  /** Source or credit line under the caption. */
+  credit?: string;
+}
+
+const { src, alt, caption, credit } = Astro.props;
+---
+
+<figure class="my-8">
+  <Image
+    src={src}
+    alt={alt}
+    widths={[480, 720, 1440]}
+    sizes="(min-width: 768px) 720px, 100vw"
+    class="border-border w-full rounded-[10px] border"
+  />
+  {
+    (caption || credit) && (
+      <figcaption class="text-muted mt-2 text-sm">
+        {caption}
+        {credit && <span class="block">{credit}</span>}
+      </figcaption>
+    )
+  }
+</figure>

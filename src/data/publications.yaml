@@ -1,0 +1,37 @@
+# One entry per publication. To add a paper, copy an entry, change the id
+# (lowercase-hyphenated, never changed after publishing) and fill in the DOI.
+# The build fetches the full author list, date, abstract, open-access link and
+# citation count from Crossref and OpenAlex. Anything written here wins over
+# fetched data, so leave a field out to use the fetched value.
+#
+# type:   journal | preprint | conference | thesis | chapter
+# status: published | accepted | under-review | in-preparation
+# role:   first-author | equal-first | co-author | corresponding
+# Rule: an in-preparation entry never names a target journal.
+
+- id: islam-2025-scirep-buche
+  type: journal
+  status: published
+  title: >-
+    In silico screening of naturally derived dietary compounds as potential
+    butyrylcholinesterase inhibitors for Alzheimer's disease treatment
+  # Only the first author is typed here; the full list comes from Crossref.
+  authors:
+    - Islam MT
+  authorsComplete: false
+  year: 2025
+  journal: Scientific Reports
+  volume: '15'
+  articleNumber: '17134'
+  doi: 10.1038/s41598-025-98092-y
+  openAccess: true
+  role: co-author
+  keywords:
+    - butyrylcholinesterase
+    - Alzheimer's disease
+    - virtual screening
+    - dietary compounds
+  selected: true
+  relatedProject: buche-alzheimers-screening
+  # Journal quartile badge. Add only with its source and year, for example:
+  # quartile: { value: Q1, source: JCR, year: 2024 }

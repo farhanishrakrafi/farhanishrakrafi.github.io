@@ -1,0 +1,62 @@
+{
+  "name": "farhan-ishrak-rafi-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Academic profile site of Farhan Ishrak Rafi. Static Astro build for GitHub Pages.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "enrich": "tsx scripts/enrich-publications.ts",
+    "cv:tex": "tsx scripts/build-cv-tex.ts",
+    "cv:pdf": "tsx scripts/build-cv-tex.ts --pdf",
+    "build": "npm run enrich && astro build && pagefind --site dist",
+    "build:site": "astro build && pagefind --site dist",
+    "preview": "astro preview",
+    "check": "astro check",
+    "lint": "tsx scripts/check-privacy.ts && tsx scripts/check-emdash.ts && tsx scripts/check-pdf-size.ts",
+    "test": "playwright test",
+    "prepare": "git config core.hooksPath .githooks || true",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/markdown-remark": "^7.3.1",
+    "@astrojs/mdx": "^8.0.2",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "@citation-js/core": "^0.9.0",
+    "@citation-js/plugin-bibtex": "^0.9.0",
+    "@citation-js/plugin-csl": "^0.9.0",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/source-serif-4": "^5.3.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "@tailwindcss/vite": "^4.3.3",
+    "3dmol": "^2.5.5",
+    "astro": "^7.3.5",
+    "katex": "^0.19.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
+    "satori": "^0.35.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "unist-util-visit-parents": "^6.0.2",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^26.6.4",
+    "pagefind": "^1.5.2",
+    "simple-icons": "^16.34.0",
+    "tsx": "^4.23.15"
+  },
+  "overrides": {
+    "katex": "$katex"
+  }
+}

@@ -1,0 +1,36 @@
+---
+import Icon from './Icon.astro';
+---
+
+<button
+  type="button"
+  class="js-only text-muted hover:bg-surface hover:text-primary h-11 w-11 items-center justify-center rounded-full"
+  data-theme-toggle
+  aria-label="Switch to dark theme"
+>
+  <Icon name="moon" class="block dark:hidden" />
+  <Icon name="sun" class="hidden dark:block" />
+</button>
+
+
+<script>
+  const root = document.documentElement;
+  const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+
+  function label() {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    button?.setAttribute('aria-label', `Switch to ${next} theme`);
+  }
+
+  label();
+  button?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* storage blocked: the choice lasts for this page only */
+    }
+    label();
+  });
+</script>

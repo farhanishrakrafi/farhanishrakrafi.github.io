@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NewsList from '../components/NewsList.astro';
+import { getNews } from '../lib/content.ts';
+
+const news = await getNews();
+const byYear = Map.groupBy(news, (n) => n.data.date.getUTCFullYear());
+---
+
+<BaseLayout
+  title="News"
+  description="Dated updates from Farhan Ishrak Rafi: publications, training, workshops and research milestones, newest first. Also available as an RSS feed."
+  ogKey="news"
+  crumbs={[{ name: 'News', path: '/news/' }]}
+>
+  <div class="container-site flex flex-col gap-10 py-10 md:py-14">
+    <h1 class="text-3xl">News</h1>
+    {news.length === 0 && <p class="text-muted">No news yet.</p>}
+    {
+      [...byYear.entries()].map(([year, items]) => (
+        <section aria-labelledby={`news-${year}`}>
+          <h2 id={`news-${year}`} class="section-title">
+            {year}
+          </h2>
+          <NewsList items={items} />
+        </section>
+      ))
+    }
+  </div>
+</BaseLayout>

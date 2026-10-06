@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ThemeCard from '../components/ThemeCard.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import PublicationItem from '../components/PublicationItem.astro';
+import SkillMatrix from '../components/SkillMatrix.astro';
+import NewsList from '../components/NewsList.astro';
+import Icon from '../components/Icon.astro';
+import { getCv, getNews, getProfile, getProjects, getThemes } from '../lib/content.ts';
+import { getPublications } from '../lib/publications.ts';
+import { heroPhoto } from '../lib/photo.ts';
+import { absoluteUrl, url } from '../lib/paths.ts';
+
+const profile = await getProfile();
+const cv = await getCv();
+const themes = await getThemes();
+const featured = (await getProjects()).filter((p) => p.data.featured).slice(0, 3);
+const selected = (await getPublications()).filter((p) => p.selected).slice(0, 3);
+const news = (await getNews()).slice(0, 3);
+const photo = await heroPhoto(profile.photo);
+
+const sameAs = Object.values(profile.links).filter((l): l is string => Boolean(l));
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  jobTitle: 'Biochemist and computational biologist',
+  description: profile.researchStatement,
+  url: absoluteUrl('/', Astro.site),
+  image: photo ? new URL(photo.fallback, Astro.site).toString() : undefined,
+  affiliation: {
+    '@type': 'Organization',
+    name: profile.affiliation,
+    parentOrganization: { '@type': 'CollegeOrUniversity', name: profile.institution },
+  },
+  alumniOf: { '@type': 'CollegeOrUniversity', name: profile.institution },
+  homeLocation: { '@type': 'Place', name: profile.location },
+  knowsAbout: [
+    'Antimicrobial resistance',
+    'Bacterial genomics',
+    'Microbiology',
+    'Molecular docking',
+    'Molecular dynamics',
+    'Computational drug discovery',
+    'Multi-omics',
+  ],
+  sameAs,
+};
+
+const description =
+  'Farhan Ishrak Rafi, biochemist in Bangladesh working on antimicrobial resistance, bacterial genomics and computational drug discovery.';
+---
+
+<BaseLayout description={description} ogKey="home" ogType="profile" jsonLd={[person]} preloadImage={photo?.avifSrcset}>
+  <div class="container-site flex flex-col gap-16 pb-6">
+    <div class="flex flex-col gap-6">
+      <Hero photo={photo} />
+    </div>
+
+    <section aria-labelledby="themes-title">
+      <h2 id="themes-title" class="section-title">Research themes</h2>
+      <div class="grid gap-4 md:grid-cols-3">
+        {themes.map((theme) => <ThemeCard theme={theme} />)}
+      </div>
+    </section>
+
+    {
+      featured.length > 0 && (
+        <section aria-labelledby="featured-title">
+          <div class="mb-4 flex items-baseline justify-between gap-4">
+            <h2 id="featured-title" class="section-title mb-0">
+              Featured projects
+            </h2>
+            <a href={url('/research/')} class="inline-flex items-center gap-1 font-semibold">
+              All projects <Icon name="arrow-right" size={16} />
+            </a>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {featured.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      selected.length > 0 && (
+        <section aria-labelledby="pubs-title">
+          <div class="mb-4 flex items-baseline justify-between gap-4">
+            <h2 id="pubs-title" class="section-title mb-0">
+              Selected publications
+            </h2>
+            <a href={url('/publications/')} class="inline-flex items-center gap-1 font-semibold">
+              All publications <Icon name="arrow-right" size={16} />
+            </a>
+          </div>
+          <ol class="card divide-border flex flex-col divide-y">
+            {selected.map((pub) => (
+              <li class="p-5">
+                <PublicationItem pub={pub} />
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    <section aria-labelledby="methods-title">
+      <div class="mb-4 flex items-baseline justify-between gap-4">
+        <h2 id="methods-title" class="section-title mb-0">Methods</h2>
+        <a href={url('/cv/#skills')} class="inline-flex items-center gap-1 font-semibold">
+          All skills <Icon name="arrow-right" size={16} />
+        </a>
+      </div>
+      <SkillMatrix skills={cv.skills} limit={5} />
+    </section>
+
+    {
+      news.length > 0 && (
+        <section aria-labelledby="news-title">
+          <div class="mb-4 flex items-baseline justify-between gap-4">
+            <h2 id="news-title" class="section-title mb-0">
+              Latest news
+            </h2>
+            <a href={url('/news/')} class="inline-flex items-center gap-1 font-semibold">
+              All news <Icon name="arrow-right" size={16} />
+            </a>
+          </div>
+          <NewsList items={news} />
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>

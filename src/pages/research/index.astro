@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { Content as Statement } from '../../data/research-statement.md';
+import { STATUS_LABELS, STATUS_ORDER, THEME_LABELS, getProjects, type ThemeId } from '../../lib/content.ts';
+
+const projects = await getProjects();
+const themes = [...new Set(projects.flatMap((p) => p.data.themes))] as ThemeId[];
+const statuses = STATUS_ORDER.filter((s) => projects.some((p) => p.data.status === s));
+const showFilters = projects.length > 1 && (themes.length > 1 || statuses.length > 1);
+---
+
+<BaseLayout
+  title="Research"
+  description="Research projects of Farhan Ishrak Rafi: antimicrobial resistance and bacterial genomics, structure-based drug discovery and multi-omics."
+  ogKey="research"
+  crumbs={[{ name: 'Research', path: '/research/' }]}
+>
+  <div class="container-site flex flex-col gap-10 py-10 md:py-14">
+    <header class="flex flex-col gap-4">
+      <h1 class="text-3xl">Research</h1>
+      <div class="prose text-lg">
+        <Statement />
+      </div>
+    </header>
+
+    <section aria-labelledby="projects-title" class="flex flex-col gap-5">
+      <h2 id="projects-title" class="section-title mb-0">Projects</h2>
+
+      {
+        showFilters && (
+          <div class="js-only flex flex-col gap-3" data-filters>
+            {themes.length > 1 && (
+              <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by theme">
+                <span class="text-muted text-sm font-semibold">Theme</span>
+                {themes.map((t) => (
+                  <button type="button" class="filter-chip" data-filter="theme" data-value={t} aria-pressed="false">
+                    {THEME_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+            )}
+            {statuses.length > 1 && (
+              <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by status">
+                <span class="text-muted text-sm font-semibold">Status</span>
+                {statuses.map((s) => (
+                  <button type="button" class="filter-chip" data-filter="status" data-value={s} aria-pressed="false">
+                    {STATUS_LABELS[s]}
+                  </button>
+                ))}
+              </div>
+            )}
+            <p class="text-muted text-sm" aria-live="polite" data-filter-count />
+          </div>
+        )
+      }
+
+      <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-project-list>
+        {
+          projects.map((project, i) => (
+            <li class="flex [&>article]:w-full">
+              <ProjectCard project={project} lazy={i > 2} />
+            </li>
+          ))
+        }
+      </ul>
+      <p class="text-muted" hidden data-filter-empty>
+        No projects match these filters. <button type="button" class="text-primary underline" data-filter-clear>Show all projects</button>
+      </p>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .filter-chip {
+    min-height: 2.25rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    padding: 0.2rem 0.85rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .filter-chip:hover {
+    border-color: var(--primary);
+  }
+  .filter-chip[aria-pressed='true'] {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--on-primary);
+  }
+</style>
+
+<script>
+  // Research filters: progressive enhancement. Without JavaScript every project shows.
+  const root = document.querySelector<HTMLElement>('[data-filters]');
+  const items = [...document.querySelectorAll<HTMLElement>('[data-project-list] > li')];
+  const empty = document.querySelector<HTMLElement>('[data-filter-empty]');
+  const count = document.querySelector<HTMLElement>('[data-filter-count]');
+
+  function read() {
+    const params = new URLSearchParams(location.search);
+    return { theme: params.get('theme') ?? '', status: params.get('status') ?? '' };
+  }
+
+  function render() {
+    const { theme, status } = read();
+    let shown = 0;
+    for (const li of items) {
+      const card = li.querySelector<HTMLElement>('[data-project]');
+      const themes = (card?.dataset.themes ?? '').split(' ');
+      const ok = (!theme || themes.includes(theme)) && (!status || card?.dataset.status === status);
+      li.hidden = !ok;
+      if (ok) shown++;
+    }
+    root?.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((b) => {
+      const active = b.dataset.filter === 'theme' ? theme : status;
+      b.setAttribute('aria-pressed', String(b.dataset.value === active));
+    });
+    if (empty) empty.hidden = shown > 0;
+    if (count) count.textContent = theme || status ? `Showing ${shown} of ${items.length} projects.` : '';
+  }
+
+  function update(key: string, value: string) {
+    const params = new URLSearchParams(location.search);
+    if (!value || params.get(key) === value) params.delete(key);
+    else params.set(key, value);
+    const query = params.toString();
+    history.replaceState(null, '', `${location.pathname}${query ? `?${query}` : ''}`);
+    render();
+  }
+
+  root?.addEventListener('click', (event) => {
+    const button = (event.target as Element).closest<HTMLButtonElement>('[data-filter]');
+    if (button) update(button.dataset.filter ?? '', button.dataset.value ?? '');
+  });
+  document.querySelector('[data-filter-clear]')?.addEventListener('click', () => {
+    history.replaceState(null, '', location.pathname);
+    render();
+  });
+
+  render();
+</script>

@@ -1,0 +1,36 @@
+---
+import IconLink from './IconLink.astro';
+import type { IconName } from './Icon.astro';
+import { getProfile } from '../lib/content.ts';
+import { url } from '../lib/paths.ts';
+
+interface Props {
+  /** Include the e-mail icon, which points to the contact page. */
+  email?: boolean;
+  /** Include ResearchGate (the hero row leaves it out). */
+  researchgate?: boolean;
+  class?: string;
+}
+
+const { email = true, researchgate = true, class: className } = Astro.props;
+const { links } = await getProfile();
+
+const items: Array<{ href: string; icon: IconName; label: string }> = [];
+if (links.orcid) items.push({ href: links.orcid, icon: 'orcid', label: 'ORCID' });
+if (links.scholar) items.push({ href: links.scholar, icon: 'scholar', label: 'Google Scholar' });
+if (links.github) items.push({ href: links.github, icon: 'github', label: 'GitHub' });
+if (links.linkedin) items.push({ href: links.linkedin, icon: 'linkedin', label: 'LinkedIn' });
+if (researchgate && links.researchgate)
+  items.push({ href: links.researchgate, icon: 'researchgate', label: 'ResearchGate' });
+if (email) items.push({ href: url('/contact/#email'), icon: 'mail', label: 'Email (contact page)' });
+---
+
+<ul class:list={['flex flex-wrap items-center gap-1', className]}>
+  {
+    items.map((item) => (
+      <li>
+        <IconLink {...item} />
+      </li>
+    ))
+  }
+</ul>

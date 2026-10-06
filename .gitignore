@@ -1,0 +1,34 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# test and audit output
+test-results/
+playwright-report/
+.lighthouseci/
+lychee/
+
+# LaTeX build files (the PDF is built in CI)
+cv/build/
+*.aux
+*.log
+*.out
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+public/cv.pdf
+
+# private material: never commit (SPEC.md section 11)
+cv/private/
+*.local.*
+.env
+.env*
+
+# editors and OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/

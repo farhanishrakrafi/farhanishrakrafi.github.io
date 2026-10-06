@@ -1,0 +1,56 @@
+name: Refresh citation metrics
+
+# Every Monday at 03:00 UTC: re-fetch Crossref and OpenAlex data, commit the
+# cache only if the numbers changed, then redeploy. GitHub may pause scheduled
+# workflows in a quiet repository; re-enable it in the Actions tab if so.
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Fetch publication metadata
+        run: npm run enrich
+        env:
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+
+      - name: Commit only if something other than the check time changed
+        id: commit
+        run: |
+          file=src/data/generated/publications.enriched.json
+          if git diff --quiet -I '"checkedAt"' -- "$file"; then
+            echo "No changes in publication data."
+            git checkout -- "$file"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add "$file"
+            git commit -m "Refresh publication metadata and citation counts"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Pushes made with GITHUB_TOKEN do not start other workflows, so start the deploy explicitly.
+      - name: Redeploy
+        if: steps.commit.outputs.changed == 'true'
+        run: gh workflow run deploy.yml --ref "${{ github.ref_name }}"
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,58 @@
+# Site identity. Edit the values, keep the keys.
+# Any link left empty ('') hides its icon everywhere on the site.
+
+name: Farhan Ishrak Rafi
+
+# Every spelling of the name that can appear in an author list.
+# Used to show the name in bold. CONFIRM against the Scientific Reports author list.
+nameVariants:
+  - Farhan Ishrak Rafi
+  - Farhan I. Rafi
+  - F. I. Rafi
+  - Rafi FI
+  - Rafi F.I.
+  - Rafi, F. I.
+  - Rafi, Farhan Ishrak
+
+headline: Biochemist · Bacterial genomics · Computational drug discovery
+
+researchStatement: >-
+  I combine wet-lab microbiology with genome analysis and molecular simulation
+  to study antimicrobial resistance and find new drug leads.
+
+affiliation: >-
+  Bioinformatics and Structural Biology Laboratory, Department of Biochemistry
+  and Molecular Biology, University of Rajshahi
+
+# Short form used in structured data (schema.org) and social cards.
+institution: University of Rajshahi
+
+location: Dhaka, Bangladesh
+timezone: Asia/Dhaka (UTC+6)
+
+email: farhanishrakrafi@yahoo.com
+
+# One line shown under the hero. Set to '' to hide the banner.
+availability: >-
+  Open to fully funded PhD positions (2027 intake) and pharmaceutical QC,
+  Microbiology and R&D roles.
+
+# Shown on the Contact page.
+openTo:
+  - Fully funded PhD positions (2027 intake)
+  - Research collaborations in antimicrobial resistance, bacterial genomics and drug discovery
+  - Pharmaceutical QC, Microbiology and R&D roles
+
+# Put the headshot at src/assets/photo.jpg. Until it exists, the site shows initials.
+photo: photo.jpg
+photoAlt: Portrait of Farhan Ishrak Rafi
+
+links:
+  orcid: ''
+  scholar: ''
+  github: ''
+  linkedin: https://www.linkedin.com/in/farhanishrakrafi
+  researchgate: ''
+
+# Show the scientific AI evaluation work on the CV page.
+showProfessionalExperience: true

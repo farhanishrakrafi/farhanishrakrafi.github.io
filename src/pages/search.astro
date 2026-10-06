@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/paths.ts';
+---
+
+<BaseLayout
+  title="Search"
+  description="Search the projects, publications, notes and CV of Farhan Ishrak Rafi. The search index is built with the site and runs in your browser."
+  ogKey="search"
+  crumbs={[{ name: 'Search', path: '/search/' }]}
+  searchable={false}
+>
+  <div class="container-site flex max-w-[var(--container-prose)] flex-col gap-6 py-10 md:py-14">
+    <h1 class="text-3xl">Search</h1>
+    <noscript>
+      <p>Search needs JavaScript. You can browse <a href={url('/research/')}>Research</a> and <a href={url('/publications/')}>Publications</a> instead.</p>
+    </noscript>
+    <div id="search" data-pagefind-base={url('/')} data-bundle={url('/pagefind/')}></div>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  #search {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: var(--primary);
+    --pagefind-ui-text: var(--text);
+    --pagefind-ui-background: var(--bg);
+    --pagefind-ui-border: var(--border);
+    --pagefind-ui-tag: var(--surface);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 10px;
+    --pagefind-ui-font: var(--font-sans);
+  }
+  #search .pagefind-ui__result-link {
+    color: var(--primary);
+  }
+  #search .pagefind-ui__result-excerpt,
+  #search .pagefind-ui__message {
+    color: var(--text);
+  }
+  #search mark {
+    background: var(--primary-soft);
+    color: var(--text);
+  }
+</style>
+
+<script>
+  // Load Pagefind's UI only on this page. The index is generated after `astro build`.
+  const host = document.getElementById('search');
+  const bundle = host?.dataset.bundle ?? '/pagefind/';
+  const css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = `${bundle}pagefind-ui.css`;
+  document.head.append(css);
+
+  const script = document.createElement('script');
+  script.src = `${bundle}pagefind-ui.js`;
+  script.onload = () => {
+    const PagefindUI = (window as unknown as { PagefindUI: new (opts: object) => unknown }).PagefindUI;
+    new PagefindUI({
+      element: '#search',
+      bundlePath: bundle,
+      baseUrl: host?.dataset.pagefindBase ?? '/',
+      showSubResults: true,
+      showImages: false,
+      autofocus: false,
+      translations: { placeholder: 'Search projects, papers and notes' },
+    });
+    const query = new URLSearchParams(location.search).get('q');
+    if (query) {
+      const input = document.querySelector<HTMLInputElement>('#search input');
+      if (input) {
+        input.value = query;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
+  };
+  script.onerror = () => {
+    if (host) host.textContent = 'The search index is not available in this preview. Run npm run build to create it.';
+  };
+  document.head.append(script);
+</script>

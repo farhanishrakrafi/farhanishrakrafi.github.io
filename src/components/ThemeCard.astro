@@ -1,0 +1,26 @@
+---
+import Chip from './Chip.astro';
+import Icon from './Icon.astro';
+import { url } from '../lib/paths.ts';
+
+interface Props {
+  theme: { id: string; title: string; summary: string; methods: string[] };
+}
+
+const { theme } = Astro.props;
+---
+
+<article class="card card-link relative flex flex-col gap-3 p-5">
+  <h3 class="text-lg leading-snug">
+    <a href={url(`/research/?theme=${theme.id}`)} class="text-text no-underline after:absolute after:inset-0 after:rounded-[10px] after:content-['']">
+      {theme.title}
+    </a>
+  </h3>
+  <p class="text-muted">{theme.summary}</p>
+  <ul class="mt-auto flex flex-wrap gap-2" aria-label="Methods">
+    {theme.methods.map((m) => <li><Chip text={m} /></li>)}
+  </ul>
+  <span class="text-primary inline-flex items-center gap-1 text-sm font-semibold" aria-hidden="true">
+    See projects <Icon name="arrow-right" size={16} />
+  </span>
+</article>

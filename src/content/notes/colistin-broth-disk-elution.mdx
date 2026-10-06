@@ -1,0 +1,50 @@
+---
+title: Colistin broth disk elution, step by step
+description: A bench protocol for colistin MIC testing by broth disk elution (CBDE) in Enterobacterales, with the arithmetic behind each step.
+date: 2026-10-06
+tags: [protocol, AMR, susceptibility testing]
+# Draft: CONFIRM every value against the current CLSI M100 edition before setting this to false.
+draft: true
+---
+
+Colistin MICs are hard to measure well: the drug sticks to plastic and diffuses poorly in agar, so disc diffusion is not reliable. Broth disk elution (CBDE) is a simple tube method that uses standard 10 µg colistin disks to make known broth concentrations.
+
+## What you need
+
+- Cation-adjusted Mueller-Hinton broth (CAMHB), 10 mL per tube, four tubes per isolate
+- Colistin disks, 10 µg each
+- A fresh overnight culture of the isolate and a 0.5 McFarland standard
+- Quality control strains as listed in the current CLSI M100, including an *mcr-1*-positive control
+
+## Setting up the tubes
+
+Label four tubes 0, 1, 2 and 4, and add that number of colistin disks to each. Each disk releases 10 µg into 10 mL of broth, so the final concentration in a tube with $n$ disks is
+
+$$
+C = \frac{n \times 10\ \mu\text{g}}{10\ \text{mL}} = n\ \mu\text{g/mL}
+$$
+
+The tube with no disk is the growth control. Let the disks elute at room temperature for 30 minutes, mixing gently.
+
+## Inoculum
+
+Adjust a suspension of the isolate to a 0.5 McFarland standard, roughly $1.5 \times 10^{8}$ CFU/mL. Add 50 µL to each tube. The final density is about
+
+$$
+1.5 \times 10^{8} \times \frac{0.05}{10.05} \approx 7.5 \times 10^{5}\ \text{CFU/mL}
+$$
+
+which is within the standard target for broth dilution methods.
+
+## Incubation and reading
+
+Incubate at 33 to 35 °C in ambient air for 16 to 20 hours. The MIC is the lowest concentration with no visible growth. Check that the growth control is turbid before reading the other tubes.
+
+<Callout type="warning">
+Interpretive breakpoints change between CLSI editions. Always interpret against the edition your laboratory follows.
+</Callout>
+
+## Common problems
+
+- **No growth in the control tube.** The inoculum was too light or the broth is faulty: repeat the test.
+- **Skipped tubes** (growth at 4 µg/mL but not at 2 µg/mL). Repeat the test; skips often point to a mixed or contaminated culture.

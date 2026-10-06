@@ -1,0 +1,71 @@
+---
+import AvailabilityBanner from './AvailabilityBanner.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import ProfileLinks from './ProfileLinks.astro';
+import type { HeroPhoto } from '../lib/photo.ts';
+import { getProfile } from '../lib/content.ts';
+import { url } from '../lib/paths.ts';
+
+interface Props {
+  photo?: HeroPhoto;
+}
+
+const { photo } = Astro.props;
+const profile = await getProfile();
+const initials = profile.name
+  .split(/\s+/)
+  .map((w) => w[0])
+  .join('')
+  .slice(0, 3);
+---
+
+<section class="flex flex-col gap-8 pt-10 pb-6 md:flex-row md:items-start md:gap-10 md:pt-16" aria-labelledby="hero-name">
+  {
+    photo ? (
+      <picture class="shrink-0">
+        <source type="image/avif" srcset={photo.avifSrcset} />
+        <source type="image/webp" srcset={photo.webpSrcset} />
+        <img
+          src={photo.fallback}
+          alt={profile.photoAlt}
+          width="176"
+          height="176"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          class="border-border h-44 w-44 rounded-3xl border object-cover"
+        />
+      </picture>
+    ) : (
+      <div
+        class="bg-primary-soft text-primary flex h-44 w-44 shrink-0 items-center justify-center rounded-3xl font-serif text-5xl font-semibold"
+        role="img"
+        aria-label={`Initials of ${profile.name}`}
+      >
+        {initials}
+      </div>
+    )
+  }
+  <div class="flex flex-col gap-4">
+    <h1 id="hero-name" class="text-3xl">{profile.name}</h1>
+    <p class="text-primary text-lg font-semibold">{profile.headline}</p>
+    <p class="max-w-[60ch] text-lg">{profile.researchStatement}</p>
+    <div class="text-muted flex flex-col gap-1">
+      <p class="flex items-start gap-2">
+        <Icon name="building" size={18} class="mt-1 shrink-0" />
+        <span><span class="sr-only">Affiliation: </span>{profile.affiliation}</span>
+      </p>
+      <p class="flex items-center gap-2">
+        <Icon name="pin" size={18} class="shrink-0" />
+        <span><span class="sr-only">Location: </span>{profile.location}</span>
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <Button href={url('/cv.pdf')} icon="download">Download CV</Button>
+      <Button href={url('/research/')} variant="secondary">View research</Button>
+    </div>
+    <ProfileLinks researchgate={false} class="-ml-3" />
+  </div>
+</section>
+<AvailabilityBanner text={profile.availability} />

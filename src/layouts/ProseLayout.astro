@@ -1,0 +1,43 @@
+---
+import type { MarkdownHeading } from 'astro';
+import BaseLayout from './BaseLayout.astro';
+import Toc from '../components/Toc.astro';
+import type { Crumb } from '../lib/seo.ts';
+
+interface Props {
+  title: string;
+  description: string;
+  ogKey: string;
+  ogType?: 'website' | 'article';
+  crumbs?: Crumb[];
+  jsonLd?: unknown[];
+  headings?: MarkdownHeading[];
+}
+
+const { headings = [], ...base } = Astro.props;
+const hasToc = headings.filter((h) => h.depth === 2 || h.depth === 3).length > 1;
+---
+
+<BaseLayout {...base}>
+  <slot name="head" slot="head" />
+  <div class="container-site py-10 md:py-14">
+    <div class:list={['grid gap-10', hasToc && 'lg:grid-cols-[minmax(0,720px)_14rem] lg:justify-between']}>
+      <div class="min-w-0">
+        <slot name="header" />
+        <div class="prose">
+          <slot />
+        </div>
+        <slot name="after" />
+      </div>
+      {
+        hasToc && (
+          <aside class="no-print hidden lg:block">
+            <div class="sticky top-24">
+              <Toc headings={headings} />
+            </div>
+          </aside>
+        )
+      }
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+interface Props {
+  skills: { wetLab: string[]; genomics: string[]; structural: string[]; omics: string[]; tools?: string[] };
+  /** Items per column; leave out for all. */
+  limit?: number;
+  headingLevel?: 'h3' | 'h4';
+  showTools?: boolean;
+}
+
+const { skills, limit, headingLevel: Heading = 'h3', showTools = false } = Astro.props;
+const columns = [
+  { title: 'Wet lab', items: skills.wetLab },
+  { title: 'Genomics', items: skills.genomics },
+  { title: 'Structural', items: skills.structural },
+  { title: 'Omics', items: skills.omics },
+  ...(showTools && skills.tools?.length ? [{ title: 'Tools', items: skills.tools }] : []),
+];
+---
+
+<div class:list={['grid gap-4 sm:grid-cols-2', showTools ? 'xl:grid-cols-3' : 'lg:grid-cols-4']}>
+  {
+    columns.map((col) => (
+      <div class="card p-5">
+        <Heading class="mb-2 font-sans text-base font-semibold">{col.title}</Heading>
+        <ul class="text-muted flex flex-col gap-1.5">
+          {(limit ? col.items.slice(0, limit) : col.items).map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+</div>

@@ -1,0 +1,208 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import CvTimeline from '../components/CvTimeline.astro';
+import SkillMatrix from '../components/SkillMatrix.astro';
+import PublicationItem from '../components/PublicationItem.astro';
+import ProfileLinks from '../components/ProfileLinks.astro';
+import { getCv, getProfile } from '../lib/content.ts';
+import { getPublications } from '../lib/publications.ts';
+import { url } from '../lib/paths.ts';
+
+const profile = await getProfile();
+const cv = await getCv();
+const pubs = await getPublications();
+
+const sections = [
+  { id: 'education', title: 'Education', show: cv.education.some((i) => i.showOnSite) },
+  { id: 'research-experience', title: 'Research experience', show: cv.researchExperience.length > 0 },
+  { id: 'publications', title: 'Publications', show: pubs.length > 0 },
+  { id: 'training', title: 'Training', show: cv.training.length > 0 },
+  { id: 'workshops', title: 'Workshops and seminars', show: cv.workshops.length > 0 },
+  { id: 'skills', title: 'Skills and methods', show: true },
+  {
+    id: 'experience',
+    title: 'Professional experience',
+    show: profile.showProfessionalExperience && cv.experience.length > 0,
+  },
+  { id: 'leadership', title: 'Leadership', show: cv.leadership.length > 0 },
+  { id: 'awards', title: 'Awards', show: cv.awards.length > 0 },
+  { id: 'memberships', title: 'Memberships', show: cv.memberships.length > 0 },
+  { id: 'languages', title: 'Languages', show: cv.languages.length > 0 },
+  { id: 'references', title: 'References', show: true },
+].filter((s) => s.show);
+---
+
+<BaseLayout
+  title="CV"
+  description="Curriculum vitae of Farhan Ishrak Rafi: education, research experience, publications, laboratory training, skills and methods, and awards."
+  ogKey="cv"
+  crumbs={[{ name: 'CV', path: '/cv/' }]}
+>
+  <div class="container-site py-10 md:py-14">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
+      <div class="flex min-w-0 flex-col gap-12">
+        <header class="flex flex-col gap-3">
+          <h1 class="text-3xl">Curriculum vitae</h1>
+          <p class="text-lg">{profile.name}</p>
+          <p class="text-muted">{profile.affiliation}</p>
+          <p class="text-muted">{profile.location}</p>
+          <div class="no-print flex flex-wrap items-center gap-3 lg:hidden">
+            <Button href={url('/cv.pdf')} icon="download">Download PDF</Button>
+          </div>
+          <ProfileLinks class="no-print -ml-3" />
+        </header>
+
+        <section id="education" aria-labelledby="education-title">
+          <h2 id="education-title" class="section-title">Education</h2>
+          <CvTimeline items={cv.education} />
+        </section>
+
+        {
+          cv.researchExperience.length > 0 && (
+            <section id="research-experience" aria-labelledby="research-experience-title">
+              <h2 id="research-experience-title" class="section-title">
+                Research experience
+              </h2>
+              <CvTimeline items={cv.researchExperience} />
+            </section>
+          )
+        }
+
+        {
+          pubs.length > 0 && (
+            <section id="publications" aria-labelledby="publications-title">
+              <h2 id="publications-title" class="section-title">
+                Publications
+              </h2>
+              <ol class="flex flex-col gap-6">
+                {pubs.map((pub) => (
+                  <li>
+                    <PublicationItem pub={pub} showCite={false} />
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )
+        }
+
+        {
+          cv.training.length > 0 && (
+            <section id="training" aria-labelledby="training-title">
+              <h2 id="training-title" class="section-title">
+                Training
+              </h2>
+              <CvTimeline items={cv.training} />
+            </section>
+          )
+        }
+
+        {
+          cv.workshops.length > 0 && (
+            <section id="workshops" aria-labelledby="workshops-title">
+              <h2 id="workshops-title" class="section-title">
+                Workshops and seminars
+              </h2>
+              <CvTimeline items={cv.workshops} />
+            </section>
+          )
+        }
+
+        <section id="skills" aria-labelledby="skills-title">
+          <h2 id="skills-title" class="section-title">Skills and methods</h2>
+          <SkillMatrix skills={cv.skills} showTools />
+        </section>
+
+        {
+          profile.showProfessionalExperience && cv.experience.length > 0 && (
+            <section id="experience" aria-labelledby="experience-title">
+              <h2 id="experience-title" class="section-title">
+                Professional experience
+              </h2>
+              <CvTimeline items={cv.experience} />
+            </section>
+          )
+        }
+
+        {
+          cv.leadership.length > 0 && (
+            <section id="leadership" aria-labelledby="leadership-title">
+              <h2 id="leadership-title" class="section-title">
+                Leadership
+              </h2>
+              <CvTimeline items={cv.leadership} />
+            </section>
+          )
+        }
+
+        {
+          cv.awards.length > 0 && (
+            <section id="awards" aria-labelledby="awards-title">
+              <h2 id="awards-title" class="section-title">
+                Awards
+              </h2>
+              <CvTimeline items={cv.awards} />
+            </section>
+          )
+        }
+
+        {
+          cv.memberships.length > 0 && (
+            <section id="memberships" aria-labelledby="memberships-title">
+              <h2 id="memberships-title" class="section-title">
+                Memberships
+              </h2>
+              <ul class="list-disc pl-5">
+                {cv.memberships.map((m) => (
+                  <li>{m}</li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        {
+          cv.languages.length > 0 && (
+            <section id="languages" aria-labelledby="languages-title">
+              <h2 id="languages-title" class="section-title">
+                Languages
+              </h2>
+              <ul class="flex flex-col gap-1">
+                {cv.languages.map((l) => (
+                  <li>
+                    <span class="font-semibold">{l.name}</span>: {l.level}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        <section id="references" aria-labelledby="references-title">
+          <h2 id="references-title" class="section-title">References</h2>
+          <p>Available on request.</p>
+        </section>
+      </div>
+
+      <aside class="no-print hidden lg:block" aria-label="CV download and contents">
+        <div class="sticky top-24 flex flex-col gap-6">
+          <Button href={url('/cv.pdf')} icon="download">Download PDF</Button>
+          <nav aria-labelledby="cv-toc-title" class="text-sm">
+            <p id="cv-toc-title" class="eyebrow mb-2">Sections</p>
+            <ul class="border-border flex flex-col gap-1.5 border-l pl-4">
+              {
+                sections.map((s) => (
+                  <li>
+                    <a href={`#${s.id}`} class="text-muted hover:text-primary no-underline">
+                      {s.title}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

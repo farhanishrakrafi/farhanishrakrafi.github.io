@@ -1,0 +1,36 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+import ExternalNote from './ExternalNote.astro';
+import { isExternal } from '../lib/paths.ts';
+
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  icon?: IconName;
+  download?: boolean | string;
+  class?: string;
+}
+
+const { href, variant = 'primary', icon, download, class: className } = Astro.props;
+
+const styles = {
+  primary: 'bg-primary text-on-primary border-primary hover:opacity-90',
+  secondary: 'bg-bg text-primary border-primary hover:bg-surface',
+  ghost: 'bg-transparent text-primary border-transparent hover:bg-surface',
+};
+const external = isExternal(href);
+---
+
+<a
+  href={href}
+  download={download}
+  class:list={[
+    'inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] border px-4 py-2 font-semibold no-underline transition-colors duration-150',
+    styles[variant],
+    className,
+  ]}
+>
+  {icon && <Icon name={icon} size={18} />}
+  <slot />
+  {external && <ExternalNote />}
+</a>

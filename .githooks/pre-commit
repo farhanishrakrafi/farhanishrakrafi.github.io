@@ -1,0 +1,19 @@
+#!/bin/sh
+# Blocks commits that leak secrets or personal data (SPEC.md section 11).
+# Installed automatically by `npm install` (git config core.hooksPath .githooks).
+
+[ -n "$CI" ] && exit 0
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --redact --staged --no-banner || {
+    echo "pre-commit: gitleaks found a possible secret. Remove it before committing."
+    exit 1
+  }
+else
+  echo "pre-commit: gitleaks is not installed, so the local secret scan was skipped (CI still runs it)."
+fi
+
+npm run --silent lint || {
+  echo "pre-commit: privacy or em dash check failed. Fix the lines above before committing."
+  exit 1
+}

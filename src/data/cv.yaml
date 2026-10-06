@@ -1,0 +1,140 @@
+# CV content for /cv/ and /cv.pdf. Items appear in the order written here.
+# Publications are NOT typed here: the CV reads them from publications.yaml.
+#
+# Dated items take: title, org, location, start, end, details, bullets.
+# Dates are plain text, for example '2024', 'May 2024' or '8 December 2024'.
+# showOnSite: false keeps an item out of the website and the public PDF.
+# Never add identity details, phone numbers, home address or referee contacts (SPEC.md section 11).
+
+education:
+  - title: M.Sc. in Biochemistry and Molecular Biology
+    org: University of Rajshahi
+    location: Rajshahi, Bangladesh
+    details: Final examinations appeared, results pending
+    bullets:
+      - >-
+        Thesis: Phenotypic and genomic characterization of MDR Escherichia coli
+        ST361 carrying blaNDM-5 and blaOXA-181 from a wound infection
+      - 'Supervisor: Prof. Md. Tofazzal Hossain'
+  - title: B.Sc. (Honours) in Biochemistry and Molecular Biology
+    org: University of Rajshahi
+    location: Rajshahi, Bangladesh
+    # CONFIRM: completion year to display (2024 or 2025), then set `end`.
+    details: CGPA 3.72/4.00
+  - title: Higher Secondary Certificate (HSC)
+    end: '2019'
+    details: GPA 4.75
+    showOnSite: false
+  - title: Secondary School Certificate (SSC)
+    end: '2017'
+    details: GPA 5.00
+    showOnSite: false
+
+researchExperience:
+  - title: M.Sc. thesis research
+    org: >-
+      Bioinformatics and Structural Biology Laboratory, Department of
+      Biochemistry and Molecular Biology, University of Rajshahi
+    location: Rajshahi, Bangladesh
+    details: 'Supervisor: Prof. Md. Tofazzal Hossain'
+    bullets:
+      - >-
+        Phenotypic and genomic characterization of a multidrug-resistant
+        Escherichia coli ST361 isolate carrying blaNDM-5 and blaOXA-181 from a
+        wound infection
+  - title: Research Assistant
+    org: Biological Research on the Brain (BRB)
+    start: May 2024
+    end: February 2026
+
+training:
+  - title: In-plant training
+    org: BCSIR Laboratories Rajshahi
+    location: Rajshahi, Bangladesh
+    start: 8 December 2024
+    end: 12 December 2024
+    bullets:
+      - 'Hands-on: UV-Visible spectrophotometry, FTIR-ATR, preparative HPLC'
+      - >-
+        Observed: GC-MS, Ion-Trap MS, automated melting point determination,
+        Biolog microbial identification
+
+workshops:
+  - title: Basics of Pharmaceuticals (workshop)
+    org: University of Rajshahi
+    start: 31 May 2024
+  - title: Preparing for the Corporate World (seminar)
+    start: 31 July 2026
+
+# Shown only when showProfessionalExperience is true in profile.yaml.
+# List only what is already public on LinkedIn: no client codenames or NDA details.
+experience:
+  - title: Scientific AI evaluation (freelance)
+    # CONFIRM: add start and end dates from the current CV.
+    bullets:
+      - Biology benchmark authoring for Poindexter Labs
+      - >-
+        Scientific evaluation of AI model outputs for Mercor, Outlier (Scale AI),
+        SME Careers, CNTXT AI and TELUS Digital
+
+leadership:
+  - title: Vice President
+    org: American Society for Microbiology (ASM) Student Chapter, University of Rajshahi
+    start: '2024'
+    end: '2025'
+  - title: Joint Secretary
+    org: American Society for Microbiology (ASM) Student Chapter, University of Rajshahi
+    start: '2023'
+
+awards:
+  - title: Finalist (Top 10), Science, National STEAM Olympiad 2023
+    start: '2023'
+  - title: 4th place, 1st National Biotechnology Olympiad 2022
+    start: '2022'
+  - title: Round 2 qualifier, Chemical Metrology Olympiad 2023
+    org: Bangladesh Reference Institute for Chemical Measurements (BRiCM)
+    start: '2023'
+
+memberships:
+  - American Society for Microbiology
+  - American Chemical Society
+  - British Pharmacological Society
+  - African Society for Laboratory Medicine
+
+languages:
+  - name: Bengali
+    level: Native
+  - name: English
+    level: Full professional
+  - name: Hindi
+    level: Working
+
+skills:
+  wetLab:
+    - Aseptic technique
+    - Culture and media preparation
+    - Disc diffusion
+    - Broth microdilution
+    - Colistin broth disk elution
+    - Biochemical identification
+  genomics:
+    - WGS analysis
+    - Resistome, virulome and plasmidome profiling
+    - MLST
+    - Phylogenomics
+    - Pangenome analysis
+  structural:
+    - Molecular docking
+    - Molecular dynamics (GROMACS)
+    - MM-GBSA
+    - ADMET profiling
+    - DFT
+  omics:
+    - Differential expression
+    - WGCNA
+    - PPI networks
+    - Microbiome (QIIME2, DADA2, LEfSe, PICRUSt2)
+  tools:
+    - R
+    - LaTeX
+    - Linux command line

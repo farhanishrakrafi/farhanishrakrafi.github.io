@@ -1,0 +1,27 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+import ExternalNote from './ExternalNote.astro';
+import { isExternal } from '../lib/paths.ts';
+
+interface Props {
+  href: string;
+  icon: IconName;
+  label: string;
+  size?: number;
+  rel?: string;
+}
+
+const { href, icon, label, size = 20, rel } = Astro.props;
+const external = isExternal(href);
+---
+
+<a
+  href={href}
+  rel={rel ?? (external ? 'noopener me' : undefined)}
+  class="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors duration-150 hover:bg-surface hover:text-primary"
+  title={label}
+>
+  <Icon name={icon} size={size} />
+  <span class="sr-only">{label}</span>
+  {external && <ExternalNote />}
+</a>

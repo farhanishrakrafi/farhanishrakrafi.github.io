@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import ExternalNote from '../components/ExternalNote.astro';
+import { getProfile } from '../lib/content.ts';
+
+const profile = await getProfile();
+const [user, domain] = profile.email.split('@') as [string, string];
+// Spelled out for people without JavaScript; never a plain address in the HTML.
+const spelled = `${user} [at] ${domain.split('.').join(' [dot] ')}`;
+// Reversed parts make the address harder for scrapers to harvest.
+const reversed = [...profile.email].reverse().join('');
+
+const profiles = [
+  { label: 'ORCID', href: profile.links.orcid, icon: 'orcid' },
+  { label: 'Google Scholar', href: profile.links.scholar, icon: 'scholar' },
+  { label: 'LinkedIn', href: profile.links.linkedin, icon: 'linkedin' },
+  { label: 'GitHub', href: profile.links.github, icon: 'github' },
+  { label: 'ResearchGate', href: profile.links.researchgate, icon: 'researchgate' },
+].filter((p) => p.href) as Array<{ label: string; href: string; icon: 'orcid' | 'scholar' | 'linkedin' | 'github' | 'researchgate' }>;
+---
+
+<BaseLayout
+  title="Contact"
+  description="Contact Farhan Ishrak Rafi about PhD positions, research collaborations, and pharmaceutical QC, Microbiology and R&D roles."
+  ogKey="contact"
+  crumbs={[{ name: 'Contact', path: '/contact/' }]}
+>
+  <div class="container-site py-10 md:py-14">
+  <div class="flex max-w-[var(--container-prose)] flex-col gap-10">
+    <header class="flex flex-col gap-3">
+      <h1 class="text-3xl">Contact</h1>
+      <p class="text-lg">Email is the best way to reach me.</p>
+    </header>
+
+    <section id="email" aria-labelledby="email-title" class="card flex flex-col gap-3 p-5">
+      <h2 id="email-title" class="section-title mb-0">Email</h2>
+      <div class="js-only flex flex-wrap items-center gap-3" data-email-box data-r={reversed}>
+        <button
+          type="button"
+          class="bg-primary text-on-primary inline-flex min-h-11 items-center gap-2 rounded-[10px] px-4 py-2 font-semibold"
+          data-email-reveal
+        >
+          <Icon name="mail" size={18} /> Show email
+        </button>
+      </div>
+      <noscript><p class="text-lg">{spelled}</p></noscript>
+      <p class="text-muted flex items-center gap-2 text-sm">
+        <Icon name="clock" size={16} />
+        Time zone: {profile.timezone}, {profile.location}
+      </p>
+    </section>
+
+    {
+      profile.openTo.length > 0 && (
+        <section aria-labelledby="open-title">
+          <h2 id="open-title" class="section-title">
+            Open to
+          </h2>
+          <ul class="flex list-disc flex-col gap-1.5 pl-5">
+            {profile.openTo.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      profiles.length > 0 && (
+        <section aria-labelledby="profiles-title">
+          <h2 id="profiles-title" class="section-title">
+            Profiles
+          </h2>
+          <ul class="flex flex-col gap-2">
+            {profiles.map((p) => (
+              <li>
+                <a href={p.href} rel="noopener me" class="inline-flex min-h-11 items-center gap-3">
+                  <Icon name={p.icon} />
+                  {p.label}
+                  <ExternalNote />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const box = document.querySelector<HTMLElement>('[data-email-box]');
+  box?.querySelector('[data-email-reveal]')?.addEventListener('click', () => {
+    const address = [...(box.dataset.r ?? '')].reverse().join('');
+    const link = document.createElement('a');
+    link.href = `mailto:${address}`;
+    link.textContent = address;
+    link.className = 'text-lg font-semibold break-all';
+    box.replaceChildren(link);
+    link.focus();
+  });
+</script>

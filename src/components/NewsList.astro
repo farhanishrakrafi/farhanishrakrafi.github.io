@@ -1,0 +1,37 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ExternalNote from './ExternalNote.astro';
+import { formatDate, isoDate } from '../lib/dates.ts';
+import { italicize } from '../lib/italics.ts';
+import { isExternal } from '../lib/paths.ts';
+
+interface Props {
+  items: CollectionEntry<'news'>[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="flex flex-col gap-4">
+  {
+    items.map((item) => (
+      <li class="grid gap-1 sm:grid-cols-[9rem_1fr] sm:gap-4">
+        <time class="text-muted text-sm sm:pt-0.5" datetime={isoDate(item.data.date)}>
+          {formatDate(item.data.date)}
+        </time>
+        <p>
+          <span set:html={italicize(item.data.text)} />
+          {item.data.link && (
+            <>
+              {' '}
+              <a href={item.data.link} rel={isExternal(item.data.link) ? 'noopener' : undefined}>
+                Read more
+                {isExternal(item.data.link) && <ExternalNote />}
+              </a>
+            </>
+          )}
+        </p>
+      </li>
+    ))
+  }
+</ul>

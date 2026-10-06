@@ -1,0 +1,45 @@
+---
+import ProfileLinks from './ProfileLinks.astro';
+import { ANALYTICS, SITE } from '../config/site.ts';
+import { getProfile } from '../lib/content.ts';
+import { formatDate, isoDate } from '../lib/dates.ts';
+import { lastCommitDate } from '../lib/git-dates.ts';
+import ExternalNote from './ExternalNote.astro';
+import { url } from '../lib/paths.ts';
+
+const profile = await getProfile();
+const updated = lastCommitDate();
+const analytics = Boolean(ANALYTICS.goatcounterCode || ANALYTICS.cloudflareToken);
+---
+
+<footer data-site-footer class="border-border bg-surface mt-20 border-t">
+  <div class="container-site flex flex-col gap-6 py-10">
+    <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+      <p class="font-serif text-lg font-semibold">{profile.name}</p>
+      <ProfileLinks />
+    </div>
+    <div class="text-muted flex flex-col gap-2 text-sm">
+      {
+        updated && (
+          <p>
+            Last updated <time datetime={isoDate(updated)}>{formatDate(updated)}</time>.
+          </p>
+        )
+      }
+      <p>
+        Text and images are licensed{' '}
+        <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener">CC BY 4.0<ExternalNote /></a>;
+        code is <a href={`${SITE.repository}/blob/main/LICENSE`} rel="noopener">MIT<ExternalNote /></a>.{' '}
+        <a href={SITE.repository} rel="noopener">Source code on GitHub<ExternalNote /></a>.{' '}
+        <a href={url('/rss.xml')}>RSS feed</a>.
+      </p>
+      <p>
+        {
+          analytics
+            ? 'Privacy: this site counts page views with a cookieless analytics service. No cookies are set and no personal data is collected.'
+            : 'Privacy: this site sets no cookies and does not track visitors.'
+        }
+      </p>
+    </div>
+  </div>
+</footer>

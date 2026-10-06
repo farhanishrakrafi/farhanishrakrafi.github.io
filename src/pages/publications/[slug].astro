@@ -1,0 +1,227 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AuthorList from '../../components/AuthorList.astro';
+import Button from '../../components/Button.astro';
+import CopyButton from '../../components/CopyButton.astro';
+import ExternalNote from '../../components/ExternalNote.astro';
+import Icon from '../../components/Icon.astro';
+import { formatCitation } from '../../lib/citations.ts';
+import { getProjects } from '../../lib/content.ts';
+import { formatDate, formatParts, scholarDate } from '../../lib/dates.ts';
+import { italicize } from '../../lib/italics.ts';
+import { absoluteUrl, url } from '../../lib/paths.ts';
+import {
+  PUB_STATUS_LABELS,
+  ROLE_LABELS,
+  TYPE_LABELS,
+  fullName,
+  getPublications,
+  sourceDetails,
+  type Publication,
+} from '../../lib/publications.ts';
+
+export const getStaticPaths = (async () => {
+  const pubs = await getPublications();
+  return pubs.map((pub) => ({ params: { slug: pub.id }, props: { pub } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  pub: Publication;
+}
+
+const { pub } = Astro.props;
+const citation = formatCitation(pub);
+const project = pub.relatedProject
+  ? (await getProjects()).find((p) => p.id === pub.relatedProject)
+  : undefined;
+const journal = pub.status === 'in-preparation' ? undefined : pub.journal;
+const pageUrl = absoluteUrl(`/publications/${pub.id}/`, Astro.site);
+// Google Scholar wants the PDF in the same directory as this page, as an absolute URL.
+const hostedPdf = pub.pdf && pub.pdf.startsWith(pageUrl) ? pub.pdf : undefined;
+
+const authorsFull = pub.authors.map(fullName);
+const scholarly = {
+  '@context': 'https://schema.org',
+  '@type': 'ScholarlyArticle',
+  headline: pub.title,
+  name: pub.title,
+  author: pub.authors.map((a) => ({ '@type': 'Person', name: fullName(a) })),
+  datePublished: pub.date.map((n, i) => (i === 0 ? String(n) : String(n).padStart(2, '0'))).join('-'),
+  isPartOf: journal
+    ? {
+        '@type': 'PublicationVolume',
+        volumeNumber: pub.volume,
+        isPartOf: { '@type': 'Periodical', name: journal },
+      }
+    : undefined,
+  pagination: pub.articleNumber,
+  identifier: pub.doi ? { '@type': 'PropertyValue', propertyID: 'DOI', value: pub.doi } : undefined,
+  sameAs: pub.doiUrl,
+  url: pageUrl,
+  license: pub.license,
+  isAccessibleForFree: pub.openAccess || undefined,
+  keywords: pub.keywords.length ? pub.keywords.join(', ') : undefined,
+  abstract: pub.abstract,
+};
+
+const description = (
+  pub.abstract
+    ? pub.abstract
+    : `${pub.title}. ${journal ? `${journal}, ` : ''}${pub.date[0]}.`
+)
+  .replace(/\s+/g, ' ')
+  .slice(0, 155)
+  .replace(/\s+\S*$/, '');
+---
+
+<BaseLayout
+  title={pub.title}
+  description={description}
+  ogKey={`publications-${pub.id}`}
+  ogType="article"
+  crumbs={[
+    { name: 'Publications', path: '/publications/' },
+    { name: pub.title, path: `/publications/${pub.id}/` },
+  ]}
+  jsonLd={[scholarly]}
+>
+  <Fragment slot="head">
+    <meta name="citation_title" content={pub.title} />
+    {authorsFull.map((name) => <meta name="citation_author" content={name} />)}
+    <meta name="citation_publication_date" content={scholarDate(pub.date)} />
+    {journal && <meta name="citation_journal_title" content={journal} />}
+    {pub.journalShort && <meta name="citation_journal_abbrev" content={pub.journalShort} />}
+    {pub.volume && <meta name="citation_volume" content={pub.volume} />}
+    {pub.issue && <meta name="citation_issue" content={pub.issue} />}
+    {pub.articleNumber && <meta name="citation_firstpage" content={pub.articleNumber} />}
+    {pub.doi && <meta name="citation_doi" content={pub.doi} />}
+    {pub.publisher && <meta name="citation_publisher" content={pub.publisher} />}
+    {hostedPdf && <meta name="citation_pdf_url" content={hostedPdf} />}
+    <meta name="citation_abstract_html_url" content={pageUrl} />
+    {pub.keywords.map((k) => <meta name="citation_keywords" content={k} />)}
+    <meta name="citation_language" content="en" />
+  </Fragment>
+
+  <article class="container-site py-10 md:py-14">
+    <a href={url('/publications/')} class="no-print mb-6 inline-flex min-h-11 items-center gap-1 font-semibold">
+      <Icon name="arrow-left" size={16} /> All publications
+    </a>
+
+    <div class="flex max-w-[var(--container-prose)] flex-col gap-4">
+      <h1 class="text-2xl md:text-3xl" set:html={italicize(pub.title)} />
+      <p class="text-muted"><AuthorList authors={pub.authors} etAl={pub.etAl} style="full" /></p>
+      <p>
+        {journal && <em>{journal}</em>}
+        {sourceDetails(pub) && <span> {sourceDetails(pub)}</span>}
+        <span> ({formatParts(pub.date)})</span>
+      </p>
+      <div class="flex flex-wrap items-center gap-2">
+        {pub.status !== 'published' && <span class="badge badge-in-preparation">{PUB_STATUS_LABELS[pub.status]}</span>}
+        <span class="badge badge-neutral">{TYPE_LABELS[pub.type]}</span>
+        <span class="badge badge-neutral">{ROLE_LABELS[pub.role]}</span>
+        {
+          pub.openAccess && (
+            <span class="badge badge-published">
+              <Icon name="unlock" size={14} />
+              Open Access
+            </span>
+          )
+        }
+        {pub.quartile && <span class="badge badge-neutral">{pub.quartile.value} ({pub.quartile.source} {pub.quartile.year})</span>}
+      </div>
+
+      <section aria-labelledby="abstract-title" class="mt-4">
+        <h2 id="abstract-title" class="section-title">Abstract</h2>
+        {
+          pub.abstract ? (
+            <div class="flex max-w-[68ch] flex-col gap-3">
+              {pub.abstract.split(/\n{2,}/).map((para) => <p set:html={italicize(para)} />)}
+            </div>
+          ) : (
+            <p class="text-muted">
+              The abstract is available on the publisher's page{pub.doiUrl ? ', linked below' : ''}.
+            </p>
+          )
+        }
+      </section>
+
+      <div class="flex flex-wrap gap-3">
+        {
+          pub.doiUrl && (
+            <Button href={pub.doiUrl} variant="primary" icon="external">
+              Read at the publisher
+            </Button>
+          )
+        }
+        {
+          pub.oaUrl && pub.oaUrl !== pub.doiUrl && (
+            <Button href={pub.oaUrl} variant="secondary" icon="file">
+              Open-access PDF
+            </Button>
+          )
+        }
+      </div>
+
+      <dl class="grid gap-x-6 gap-y-1 sm:grid-cols-[auto_1fr]">
+        {
+          pub.doi && (
+            <>
+              <dt class="text-muted font-semibold">DOI</dt>
+              <dd>
+                <a href={pub.doiUrl} rel="noopener">
+                  {pub.doi}
+                  <ExternalNote />
+                </a>
+              </dd>
+            </>
+          )
+        }
+        {
+          pub.citations && (
+            <>
+              <dt class="text-muted font-semibold">Citations</dt>
+              <dd>
+                {pub.citations.count} (OpenAlex, as of {formatDate(pub.citations.asOf)})
+              </dd>
+            </>
+          )
+        }
+        {
+          project && (
+            <>
+              <dt class="text-muted font-semibold">Project</dt>
+              <dd>
+                <a href={url(`/research/${project.id}/`)} set:html={italicize(project.data.title)} />
+              </dd>
+            </>
+          )
+        }
+      </dl>
+
+      <section aria-labelledby="cite-title" class="mt-4 flex flex-col gap-4">
+        <h2 id="cite-title" class="section-title mb-0">Cite this publication</h2>
+        {
+          (
+            [
+              ['APA', 'apa', citation.apa],
+              ['Vancouver', 'vancouver', citation.vancouver],
+              ['BibTeX', 'bibtex', citation.bibtex],
+            ] as const
+          ).map(([label, key, text]) => (
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center justify-between gap-3">
+                <h3 class="font-sans text-base font-semibold">{label}</h3>
+                <CopyButton target={`citation-${key}`} label={`Copy ${label}`} />
+              </div>
+              <pre
+                id={`citation-${key}`}
+                class="bg-surface border-border overflow-x-auto rounded-lg border p-3 text-sm whitespace-pre-wrap"
+              >{text}</pre>
+            </div>
+          ))
+        }
+      </section>
+    </div>
+  </article>
+</BaseLayout>

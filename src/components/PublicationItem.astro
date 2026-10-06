@@ -1,0 +1,76 @@
+---
+import AuthorList from './AuthorList.astro';
+import CiteDialog from './CiteDialog.astro';
+import ExternalNote from './ExternalNote.astro';
+import Icon from './Icon.astro';
+import { formatCitation } from '../lib/citations.ts';
+import { formatDate } from '../lib/dates.ts';
+import { italicize } from '../lib/italics.ts';
+import { url } from '../lib/paths.ts';
+import { PUB_STATUS_LABELS, ROLE_LABELS, TYPE_LABELS, sourceDetails, type Publication } from '../lib/publications.ts';
+
+interface Props {
+  pub: Publication;
+  headingLevel?: 'h2' | 'h3';
+  showCite?: boolean;
+}
+
+const { pub, headingLevel: Heading = 'h3', showCite = true } = Astro.props;
+const details = sourceDetails(pub);
+// An in-preparation entry never names a journal.
+const journal = pub.status === 'in-preparation' ? undefined : pub.journal;
+---
+
+<article class="flex flex-col gap-2" data-publication data-type={pub.type}>
+  <p class="text-muted text-sm">
+    <AuthorList authors={pub.authors} etAl={pub.etAl} />
+  </p>
+  <Heading class="font-sans text-base leading-snug font-semibold">
+    <a href={url(`/publications/${pub.id}/`)} set:html={italicize(pub.title)} />
+  </Heading>
+  <p class="text-sm">
+    {journal && <em>{journal}</em>}
+    {details && <span> {details}</span>}
+    <span> ({pub.date[0]})</span>
+    {
+      pub.doiUrl && (
+        <>
+          {' · '}
+          <a href={pub.doiUrl} rel="noopener">
+            doi:{pub.doi}
+            <ExternalNote />
+          </a>
+        </>
+      )
+    }
+  </p>
+  <div class="flex flex-wrap items-center gap-2">
+    {pub.status !== 'published' && <span class="badge badge-in-preparation">{PUB_STATUS_LABELS[pub.status]}</span>}
+    <span class="badge badge-neutral">{TYPE_LABELS[pub.type]}</span>
+    <span class="badge badge-neutral">{ROLE_LABELS[pub.role]}</span>
+    {
+      pub.openAccess && (
+        <span class="badge badge-published">
+          <Icon name="unlock" size={14} />
+          Open Access
+        </span>
+      )
+    }
+    {
+      pub.quartile && (
+        <span class="badge badge-neutral">
+          {pub.quartile.value} ({pub.quartile.source} {pub.quartile.year})
+        </span>
+      )
+    }
+    {
+      pub.citations && (
+        <span class="badge badge-neutral" title={`OpenAlex, as of ${formatDate(pub.citations.asOf)}`}>
+          Citations: {pub.citations.count}
+          <span class="sr-only">(OpenAlex, as of {formatDate(pub.citations.asOf)})</span>
+        </span>
+      )
+    }
+    {showCite && <CiteDialog id={pub.id} title={pub.title} citation={formatCitation(pub)} />}
+  </div>
+</article>

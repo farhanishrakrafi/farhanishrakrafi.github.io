@@ -1,0 +1,38 @@
+# Research themes shown as cards on the home page. The id must match the
+# `themes` values used in project files.
+
+- id: amr-genomics
+  title: AMR and bacterial genomics
+  summary: >-
+    I characterise multidrug-resistant clinical bacteria at the bench and then
+    read their genomes. The aim is to link resistance phenotypes to the genes,
+    plasmids and lineages that carry them.
+  methods:
+    - Broth microdilution
+    - WGS analysis
+    - Resistome profiling
+    - Phylogenomics
+
+- id: drug-discovery
+  title: Structure-based drug discovery
+  summary: >-
+    I screen natural and dietary compound libraries against disease-linked
+    protein targets. Docking hits are checked with molecular dynamics, binding
+    free energy estimates and drug-likeness filters.
+  methods:
+    - Molecular docking
+    - Molecular dynamics
+    - MM-GBSA
+    - ADMET profiling
+
+- id: multi-omics
+  title: Multi-omics and microbiome
+  summary: >-
+    I integrate expression, methylation and microbiome data from public
+    cohorts. Network analysis helps point to genes and pathways worth testing
+    in the lab.
+  methods:
+    - Differential expression
+    - WGCNA
+    - PPI networks
+    - QIIME2

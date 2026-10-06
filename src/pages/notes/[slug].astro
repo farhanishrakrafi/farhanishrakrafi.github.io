@@ -1,0 +1,104 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import 'katex/dist/katex.min.css';
+import ProseLayout from '../../layouts/ProseLayout.astro';
+import Callout from '../../components/Callout.astro';
+import Figure from '../../components/Figure.astro';
+import MoleculeViewer from '../../components/MoleculeViewer.astro';
+import Icon from '../../components/Icon.astro';
+import { getNotes, getProfile, readingTime } from '../../lib/content.ts';
+import { formatDate, isoDate } from '../../lib/dates.ts';
+import { lastCommitDate } from '../../lib/git-dates.ts';
+import { absoluteUrl, url } from '../../lib/paths.ts';
+
+export const getStaticPaths = (async () => {
+  const notes = await getNotes();
+  return notes.map((note) => ({ params: { slug: note.id }, props: { note } }));
+}) satisfies GetStaticPaths;
+
+const { note } = Astro.props;
+const { Content, headings } = await render(note);
+const profile = await getProfile();
+const gitDate = note.filePath ? lastCommitDate(note.filePath) : undefined;
+const updated = note.data.updated ?? (gitDate && gitDate > note.data.date ? gitDate : undefined);
+
+const article = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: note.data.title,
+  description: note.data.description,
+  datePublished: isoDate(note.data.date),
+  dateModified: updated ? isoDate(updated) : undefined,
+  author: { '@type': 'Person', name: profile.name, url: absoluteUrl('/', Astro.site) },
+  keywords: note.data.tags.join(', '),
+  url: absoluteUrl(`/notes/${note.id}/`, Astro.site),
+};
+---
+
+<ProseLayout
+  title={note.data.title}
+  description={note.data.description}
+  ogKey={`notes-${note.id}`}
+  ogType="article"
+  crumbs={[
+    { name: 'Notes', path: '/notes/' },
+    { name: note.data.title, path: `/notes/${note.id}/` },
+  ]}
+  jsonLd={[article]}
+  headings={headings}
+>
+  <header slot="header" class="mb-8 flex flex-col gap-3">
+    <a href={url('/notes/')} class="no-print inline-flex min-h-11 items-center gap-1 font-semibold">
+      <Icon name="arrow-left" size={16} /> All notes
+    </a>
+    {
+      note.data.draft && (
+        <Callout type="warning" title="Draft">
+          <p>This note is a draft. It is visible only in the local preview.</p>
+        </Callout>
+      )
+    }
+    <h1 class="text-2xl md:text-3xl">{note.data.title}</h1>
+    <p class="text-muted text-lg">{note.data.description}</p>
+    <p class="text-muted text-sm">
+      <time datetime={isoDate(note.data.date)}>{formatDate(note.data.date)}</time>
+      {updated && <> · Last updated <time datetime={isoDate(updated)}>{formatDate(updated)}</time></>}
+      · {readingTime(note.body)} min read
+    </p>
+    {
+      note.data.tags.length > 0 && (
+        <ul class="flex flex-wrap gap-2" aria-label="Tags">
+          {note.data.tags.map((t) => <li class="chip">{t}</li>)}
+        </ul>
+      )
+    }
+  </header>
+  <Content components={{ Callout, Figure, MoleculeViewer }} />
+</ProseLayout>
+
+<script>
+  // Copy buttons for code blocks.
+  document.querySelectorAll<HTMLPreElement>('.prose pre.astro-code').forEach((pre, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'relative';
+    pre.replaceWith(wrap);
+    wrap.append(pre);
+    pre.id ||= `code-${i}`;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'absolute top-2 right-2 rounded-md border border-border bg-bg px-2 py-1 text-sm font-semibold';
+    button.textContent = 'Copy';
+    button.setAttribute('aria-label', 'Copy code');
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.innerText);
+        button.textContent = 'Copied';
+      } catch {
+        button.textContent = 'Select and copy';
+      }
+      setTimeout(() => (button.textContent = 'Copy'), 2000);
+    });
+    wrap.append(button);
+  });
+</script>

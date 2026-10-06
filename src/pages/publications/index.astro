@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PublicationItem from '../../components/PublicationItem.astro';
+import Button from '../../components/Button.astro';
+import { FEATURES } from '../../config/site.ts';
+import { formatDate } from '../../lib/dates.ts';
+import { url } from '../../lib/paths.ts';
+import { TYPE_LABELS, citationSummary, getPublications } from '../../lib/publications.ts';
+
+const pubs = await getPublications();
+const summary = citationSummary(pubs);
+const types = [...new Set(pubs.map((p) => p.type))];
+const showMetrics = pubs.length >= FEATURES.metricsMinPapers;
+const byYear = Map.groupBy(pubs, (p) => p.date[0] ?? 0);
+---
+
+<BaseLayout
+  title="Publications"
+  description="Peer-reviewed publications by Farhan Ishrak Rafi, with DOIs, open-access links, citation counts and citations in APA, Vancouver and BibTeX."
+  ogKey="publications"
+  crumbs={[{ name: 'Publications', path: '/publications/' }]}
+>
+  <div class="container-site flex flex-col gap-8 py-10 md:py-14">
+    <header class="flex flex-col gap-3">
+      <h1 class="text-3xl">Publications</h1>
+      <p class="text-muted text-lg">
+        {pubs.length} {pubs.length === 1 ? 'publication' : 'publications'}{
+          summary && (
+            <>
+              {' · '}
+              {summary.total} {summary.total === 1 ? 'citation' : 'citations'}
+              {showMetrics && <> · h-index {summary.hIndex}</>}
+              <span class="text-sm"> (OpenAlex, as of {formatDate(summary.asOf)})</span>
+            </>
+          )
+        }
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <Button href={url('/publications.bib')} variant="secondary" icon="download" download>
+          Download all as BibTeX
+        </Button>
+      </div>
+    </header>
+
+    {
+      types.length > 1 && (
+        <div class="js-only flex flex-wrap items-center gap-2" role="group" aria-label="Filter by type" data-type-filters>
+          <span class="text-muted text-sm font-semibold">Type</span>
+          {types.map((t) => (
+            <button type="button" class="filter-chip" data-type={t} aria-pressed="false">
+              {TYPE_LABELS[t]}
+            </button>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      [...byYear.entries()].map(([year, items]) => (
+        <section aria-labelledby={`year-${year}`} data-year-group>
+          <h2 id={`year-${year}`} class="section-title">
+            {year}
+          </h2>
+          <ol class="card divide-border flex flex-col divide-y">
+            {items.map((pub) => (
+              <li class="p-5" data-pub-item data-type={pub.type}>
+                <PublicationItem pub={pub} />
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .filter-chip {
+    min-height: 2.25rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    padding: 0.2rem 0.85rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .filter-chip[aria-pressed='true'] {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--on-primary);
+  }
+</style>
+
+<script>
+  const group = document.querySelector<HTMLElement>('[data-type-filters]');
+  group?.addEventListener('click', (event) => {
+    const button = (event.target as Element).closest<HTMLButtonElement>('[data-type]');
+    if (!button) return;
+    const on = button.getAttribute('aria-pressed') !== 'true';
+    group.querySelectorAll('[data-type]').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+    button.setAttribute('aria-pressed', String(on));
+    const type = on ? button.dataset.type : '';
+    document.querySelectorAll<HTMLElement>('[data-pub-item]').forEach((li) => {
+      li.hidden = Boolean(type) && li.dataset.type !== type;
+    });
+    document.querySelectorAll<HTMLElement>('[data-year-group]').forEach((section) => {
+      section.hidden = !section.querySelector('[data-pub-item]:not([hidden])');
+    });
+  });
+</script>

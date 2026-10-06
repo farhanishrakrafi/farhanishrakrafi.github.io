@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getNotes, readingTime } from '../../lib/content.ts';
+import { formatDate, isoDate } from '../../lib/dates.ts';
+import { url } from '../../lib/paths.ts';
+
+const notes = await getNotes();
+---
+
+<BaseLayout
+  title="Notes"
+  description="Laboratory protocols and bioinformatics tutorials by Farhan Ishrak Rafi, from antimicrobial susceptibility testing to bacterial genome analysis."
+  ogKey="notes"
+  crumbs={[{ name: 'Notes', path: '/notes/' }]}
+>
+  <div class="container-site flex max-w-[var(--container-prose)] flex-col gap-8 py-10 md:py-14">
+    <header class="flex flex-col gap-3">
+      <h1 class="text-3xl">Notes</h1>
+      <p class="text-muted text-lg">Protocols and bioinformatics tutorials.</p>
+    </header>
+    {notes.length === 0 && <p>The first notes are being written. Check back soon, or follow the <a href={url('/rss.xml')}>RSS feed</a>.</p>}
+    <ul class="flex flex-col gap-4">
+      {
+        notes.map((note) => (
+          <li>
+            <article class="card card-link relative flex flex-col gap-2 p-5">
+              <h2 class="text-lg">
+                <a href={url(`/notes/${note.id}/`)} class="text-text no-underline after:absolute after:inset-0 after:content-['']">
+                  {note.data.title}
+                </a>
+              </h2>
+              <p class="text-muted">{note.data.description}</p>
+              <p class="text-muted text-sm">
+                <time datetime={isoDate(note.data.date)}>{formatDate(note.data.date)}</time> · {readingTime(note.body)} min read
+                {note.data.draft && <span class="badge badge-neutral ml-2">Draft (dev only)</span>}
+              </p>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>

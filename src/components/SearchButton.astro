@@ -1,0 +1,13 @@
+---
+import Icon from './Icon.astro';
+import { url } from '../lib/paths.ts';
+---
+
+<a
+  href={url('/search/')}
+  class="text-muted hover:bg-surface hover:text-primary inline-flex h-11 w-11 items-center justify-center rounded-full"
+  title="Search"
+>
+  <Icon name="search" />
+  <span class="sr-only">Search this site</span>
+</a>

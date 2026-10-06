@@ -1,0 +1,74 @@
+---
+import { Image } from 'astro:assets';
+import Chip from './Chip.astro';
+import StatusBadge from './StatusBadge.astro';
+import type { Project } from '../lib/content.ts';
+import { italicize } from '../lib/italics.ts';
+import { url } from '../lib/paths.ts';
+
+interface Props {
+  project: Project;
+  headingLevel?: 'h2' | 'h3';
+  /** Lazy-load the cover image (true for cards below the fold). */
+  lazy?: boolean;
+}
+
+const { project, headingLevel: Heading = 'h3', lazy = true } = Astro.props;
+const d = project.data;
+const year = (d.end ?? d.start)?.getUTCFullYear();
+const subjects = [...d.organisms.map((o) => ({ text: o, italic: true })), ...d.targets.map((t) => ({ text: t, italic: false }))];
+---
+
+<article
+  class="card card-link relative flex flex-col overflow-hidden"
+  data-project
+  data-themes={d.themes.join(' ')}
+  data-status={d.status}
+>
+  {
+    d.cover ? (
+      <Image
+        src={d.cover}
+        alt={d.coverAlt ?? ''}
+        widths={[360, 720]}
+        sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+        class="aspect-[16/9] w-full object-cover"
+        loading={lazy ? 'lazy' : 'eager'}
+      />
+    ) : (
+      <div class="from-primary-soft to-surface aspect-[16/9] w-full bg-gradient-to-br" aria-hidden="true">
+        <svg viewBox="0 0 320 180" class="text-primary h-full w-full opacity-30" fill="none" stroke="currentColor">
+          <circle cx="250" cy="40" r="60" stroke-width="1.5" />
+          <circle cx="250" cy="40" r="35" stroke-width="1.5" />
+          <path d="M0 150 C 80 110, 160 190, 320 120" stroke-width="2" />
+          <path d="M0 165 C 90 130, 170 200, 320 140" stroke-width="1" />
+        </svg>
+      </div>
+    )
+  }
+  <div class="flex flex-1 flex-col gap-3 p-5">
+    <div class="flex flex-wrap items-center gap-2">
+      <StatusBadge status={d.status} />
+      {d.visibility === 'draft' && <span class="badge badge-neutral">Draft (dev only)</span>}
+      {year && <span class="text-muted ml-auto text-sm">{year}</span>}
+    </div>
+    <Heading class="text-lg leading-snug">
+      <a
+        href={url(`/research/${project.id}/`)}
+        class="text-text no-underline after:absolute after:inset-0 after:content-['']"
+        set:html={italicize(d.title)}
+      />
+    </Heading>
+    <p class="text-muted" set:html={italicize(d.summary)} />
+    {
+      subjects.length > 0 && (
+        <ul class="flex flex-wrap gap-2" aria-label="Organisms and targets">
+          {subjects.map((s) => <li><Chip text={s.text} italic={s.italic} /></li>)}
+        </ul>
+      )
+    }
+    <ul class="mt-auto flex flex-wrap gap-2" aria-label="Methods">
+      {d.methods.slice(0, 4).map((m) => <li><Chip text={m} /></li>)}
+    </ul>
+  </div>
+</article>

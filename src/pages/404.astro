@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import { FEATURES } from '../config/site.ts';
+import { url } from '../lib/paths.ts';
+---
+
+<BaseLayout
+  title="Page not found"
+  description="This page does not exist. Search the site or go back to the home page, research projects or publications of Farhan Ishrak Rafi."
+  ogKey="home"
+  noindex
+  searchable={false}
+>
+  <div class="container-site flex max-w-[var(--container-prose)] flex-col gap-6 py-16">
+    <p class="eyebrow">Error 404</p>
+    <h1 class="text-3xl">Page not found</h1>
+    <p class="text-lg">The page you asked for does not exist or has moved.</p>
+    {
+      FEATURES.search && (
+        <form action={url('/search/')} method="get" role="search" class="flex flex-wrap gap-2">
+          <label for="q" class="sr-only">Search the site</label>
+          <input
+            id="q"
+            name="q"
+            type="search"
+            placeholder="Search projects and papers"
+            class="border-border bg-bg min-h-11 flex-1 rounded-[10px] border px-3"
+          />
+          <button type="submit" class="bg-primary text-on-primary min-h-11 rounded-[10px] px-4 font-semibold">
+            Search
+          </button>
+        </form>
+      )
+    }
+    <div class="flex flex-wrap gap-3">
+      <Button href={url('/')} variant="secondary">Home</Button>
+      <Button href={url('/research/')} variant="secondary">Research</Button>
+      <Button href={url('/publications/')} variant="secondary">Publications</Button>
+    </div>
+  </div>
+</BaseLayout>

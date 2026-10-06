@@ -1,0 +1,15 @@
+---
+import { italicize } from '../lib/italics.ts';
+
+interface Props {
+  text: string;
+  /** Force italics, for organism names. Listed species and genes are italic anyway. */
+  italic?: boolean;
+  class?: string;
+}
+
+const { text, italic = false, class: className } = Astro.props;
+const html = italic ? `<em>${italicize(text).replace(/<\/?em>/g, '')}</em>` : italicize(text);
+---
+
+<span class:list={['chip', className]} set:html={html} />

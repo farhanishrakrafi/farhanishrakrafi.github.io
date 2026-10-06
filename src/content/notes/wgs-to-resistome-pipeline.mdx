@@ -1,0 +1,60 @@
+---
+title: From bacterial WGS reads to a resistome
+description: A walkthrough of a short-read pipeline for a bacterial isolate, from raw reads to assembly, sequence type, resistance genes, virulence genes and plasmids.
+date: 2026-10-06
+tags: [bioinformatics, genomics, AMR, tutorial]
+# Draft: CONFIRM tool versions and options against your own pipeline before setting this to false.
+draft: true
+---
+
+This walkthrough follows one bacterial isolate sequenced with paired-end Illumina reads, from raw FASTQ files to a table of resistance genes. Every tool here is free and runs on a laptop with Linux.
+
+## Is there enough data?
+
+Before anything else, estimate the sequencing depth. With $N$ reads of length $L$ for a genome of size $G$:
+
+$$
+\text{depth} = \frac{N \times L}{G}
+$$
+
+Two million 150 bp read pairs on a 5 Mb *Escherichia coli* genome give $\frac{4 \times 10^{6} \times 150}{5 \times 10^{6}} = 120\times$, which is plenty for assembly.
+
+## 1. Clean the reads
+
+```bash
+fastp -i R1.fastq.gz -I R2.fastq.gz \
+      -o trimmed_R1.fastq.gz -O trimmed_R2.fastq.gz \
+      --html fastp.html
+```
+
+## 2. Assemble and check the assembly
+
+```bash
+shovill --R1 trimmed_R1.fastq.gz --R2 trimmed_R2.fastq.gz \
+        --outdir assembly --gsize 5M
+quast.py assembly/contigs.fa -o quast
+```
+
+## 3. Sequence type
+
+```bash
+mlst assembly/contigs.fa
+```
+
+## 4. Resistance, virulence and plasmids
+
+```bash
+amrfinder -n assembly/contigs.fa --organism Escherichia --plus -o amrfinder.tsv
+abricate --db vfdb assembly/contigs.fa > virulence.tsv
+abricate --db plasmidfinder assembly/contigs.fa > plasmids.tsv
+```
+
+## 5. Annotate
+
+```bash
+bakta --db bakta-db --output annotation assembly/contigs.fa
+```
+
+## Reading the results
+
+Compare the resistance genes against the laboratory susceptibility results. A carbapenemase gene such as *blaNDM-5* should match carbapenem resistance in the phenotype; when the two disagree, check gene coverage and identity before drawing conclusions.

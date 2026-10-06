@@ -1,0 +1,83 @@
+name: Deploy to GitHub Pages
+
+# Builds the site and publishes it on every push to main.
+# Repository Settings > Pages > Source must be set to "GitHub Actions".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer push waits for the running one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history for "last updated" dates
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Block personal data and em dashes
+        run: npm run lint
+
+      # Reads the live address from GitHub Pages, so a renamed repository or a
+      # custom domain needs no code change.
+      - name: Read the Pages address
+        id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Fetch publication metadata (Crossref, OpenAlex)
+        run: npm run enrich
+        env:
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+
+      - name: Write the CV LaTeX source from the YAML data
+        run: npm run cv:tex
+        env:
+          SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+
+      - name: Compile the CV PDF
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: cv.tex
+          working_directory: cv
+
+      - name: Publish the CV PDF at /cv.pdf
+        run: cp cv/cv.pdf public/cv.pdf
+
+      - name: Build the site and search index
+        run: npm run build:site
+        env:
+          SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

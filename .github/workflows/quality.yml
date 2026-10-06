@@ -1,0 +1,113 @@
+name: Quality
+
+# Blocks bad changes: secrets, personal data, em dashes, type errors, broken
+# links, accessibility violations and Lighthouse budgets (SPEC.md section 12).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: false
+
+  site:
+    name: Build, test and audit
+    runs-on: ubuntu-latest
+    env:
+      # Test build served from the root, so the static servers and link checker resolve paths.
+      BASE_PATH: ''
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Privacy and em dash checks
+        run: npm run lint
+
+      - name: Type check
+        run: npm run check
+
+      - name: Write the CV LaTeX source
+        run: npm run cv:tex
+
+      - name: Compile the CV PDF
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: cv.tex
+          working_directory: cv
+
+      - run: cp cv/cv.pdf public/cv.pdf
+
+      - name: Build
+        run: npm run build
+
+      - name: PDF size check (under 5 MB)
+        run: npx tsx scripts/check-pdf-size.ts
+
+      - name: Internal link check
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress --root-dir "${{ github.workspace }}/dist" dist
+          fail: true
+          jobSummary: true
+
+      - name: External link check (report only)
+        uses: lycheeverse/lychee-action@v2
+        continue-on-error: true
+        with:
+          args: >-
+            --no-progress --max-retries 2 --timeout 20
+            --accept '200..=299,403,429,999'
+            --exclude-path dist/pagefind
+            --root-dir "${{ github.workspace }}/dist" dist
+          fail: false
+          output: lychee/external.md
+          jobSummary: true
+
+      - name: Install the test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Smoke and accessibility tests (Playwright + axe-core)
+        run: npm test
+
+      - name: Lighthouse budgets (mobile)
+        run: npx --yes @lhci/cli@0.15.1 autorun
+
+      - name: Keep reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: quality-reports
+          path: |
+            playwright-report/
+            test-results/
+            .lighthouseci/
+            lychee/
+          if-no-files-found: ignore
+          retention-days: 14

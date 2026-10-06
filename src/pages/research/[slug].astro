@@ -1,0 +1,212 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import Chip from '../../components/Chip.astro';
+import Icon from '../../components/Icon.astro';
+import ExternalNote from '../../components/ExternalNote.astro';
+import PublicationItem from '../../components/PublicationItem.astro';
+import Figure from '../../components/Figure.astro';
+import MoleculeViewer from '../../components/MoleculeViewer.astro';
+import Callout from '../../components/Callout.astro';
+import FindingsShown from '../../components/project/FindingsShown.astro';
+import FindingsHidden from '../../components/project/FindingsHidden.astro';
+import { THEME_LABELS, getProfile, getProjects, type Project } from '../../lib/content.ts';
+import { getPublications } from '../../lib/publications.ts';
+import { projectPeriod, isoDate } from '../../lib/dates.ts';
+import { italicize } from '../../lib/italics.ts';
+import { absoluteUrl, url } from '../../lib/paths.ts';
+
+export const getStaticPaths = (async () => {
+  const projects = await getProjects();
+  return projects.map((project, i) => ({
+    params: { slug: project.id },
+    props: { project, prev: projects[i - 1], next: projects[i + 1] },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  project: Project;
+  prev?: Project | undefined;
+  next?: Project | undefined;
+}
+
+const { project, prev, next } = Astro.props;
+const d = project.data;
+const { Content } = await render(project);
+const profile = await getProfile();
+const allPubs = await getPublications();
+const related = allPubs.filter((p) => d.publications.includes(p.id) || p.relatedProject === project.id);
+
+const linkLabels = { code: 'Code', data: 'Data', preprint: 'Preprint', poster: 'Poster' } as const;
+const links = (Object.keys(linkLabels) as Array<keyof typeof linkLabels>)
+  .filter((k) => d.links[k])
+  .map((k) => ({ label: linkLabels[k], href: d.links[k]! }));
+
+const plainTitle = d.title;
+const creativeWork = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: plainTitle,
+  description: d.summary,
+  url: absoluteUrl(`/research/${project.id}/`, Astro.site),
+  about: d.themes.map((t) => THEME_LABELS[t]),
+  creator: { '@type': 'Person', name: profile.name, url: absoluteUrl('/', Astro.site) },
+  dateCreated: d.start ? isoDate(d.start) : undefined,
+  keywords: [...d.methods, ...d.organisms, ...d.targets].join(', '),
+  creativeWorkStatus: d.status,
+};
+
+const details = [
+  { label: 'Period', value: projectPeriod(d.start, d.end) },
+  { label: 'My role', value: d.role },
+  d.supervisor ? { label: 'Supervisor', value: d.supervisor } : undefined,
+  d.lab ? { label: 'Lab', value: d.lab } : undefined,
+].filter((x): x is { label: string; value: string } => Boolean(x?.value));
+
+const description = d.summary.length >= 120 ? d.summary : `${d.summary} A research project by ${profile.name}.`;
+---
+
+<BaseLayout
+  title={plainTitle}
+  description={description.slice(0, 160)}
+  ogKey={`research-${project.id}`}
+  ogType="article"
+  crumbs={[
+    { name: 'Research', path: '/research/' },
+    { name: plainTitle, path: `/research/${project.id}/` },
+  ]}
+  jsonLd={[creativeWork]}
+>
+  <article class="container-site py-10 md:py-14">
+    <a href={url('/research/')} class="no-print mb-6 inline-flex min-h-11 items-center gap-1 font-semibold">
+      <Icon name="arrow-left" size={16} /> All projects
+    </a>
+
+    {
+      d.visibility === 'draft' && (
+        <Callout type="warning" title="Draft">
+          <p>This project is a draft. It is visible only in the local preview and is left out of the published site.</p>
+        </Callout>
+      )
+    }
+
+    <header class="flex max-w-[var(--container-prose)] flex-col gap-4">
+      <div class="flex flex-wrap gap-2">
+        <StatusBadge status={d.status} />
+        {d.themes.map((t) => <span class="badge badge-neutral">{THEME_LABELS[t]}</span>)}
+      </div>
+      <h1 class="text-2xl md:text-3xl" set:html={italicize(plainTitle)} />
+      <p class="text-muted text-lg" set:html={italicize(d.summary)} />
+      <dl class="grid gap-x-6 gap-y-1 sm:grid-cols-[auto_1fr]">
+        {
+          details.map((item) => (
+            <>
+              <dt class="text-muted font-semibold">{item.label}</dt>
+              <dd>{item.value}</dd>
+            </>
+          ))
+        }
+      </dl>
+    </header>
+
+    {
+      d.cover && (
+        <Image
+          src={d.cover}
+          alt={d.coverAlt ?? ''}
+          widths={[720, 1440]}
+          sizes="(min-width: 768px) 720px, 100vw"
+          class="border-border mt-8 w-full max-w-[var(--container-prose)] rounded-[10px] border"
+        />
+      )
+    }
+
+    <div class="prose mt-8">
+      <Content
+        components={{
+          Findings: d.resultsPublic ? FindingsShown : FindingsHidden,
+          Figure,
+          MoleculeViewer,
+          Callout,
+        }}
+      />
+
+      {!d.resultsPublic && <FindingsHidden />}
+
+      <h2 id="outputs">Outputs</h2>
+      {
+        related.length === 0 && links.length === 0 ? (
+          <p>No outputs yet. Publications and data will be listed here when they are released.</p>
+        ) : (
+          <ul>
+            {related.map((pub) => (
+              <li>
+                Paper: <a href={url(`/publications/${pub.id}/`)} set:html={italicize(pub.title)} />
+                {pub.journal && pub.status !== 'in-preparation' && <span>, <em>{pub.journal}</em></span>} ({pub.date[0]})
+              </li>
+            ))}
+            {links.map((l) => (
+              <li>
+                <a href={l.href} rel="noopener">
+                  {l.label}
+                  <ExternalNote />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      <h2 id="methods">Methods used</h2>
+      <ul class="not-prose flex list-none flex-wrap gap-2 pl-0">
+        {d.methods.map((m) => <li><Chip text={m} /></li>)}
+      </ul>
+      {
+        (d.organisms.length > 0 || d.targets.length > 0) && (
+          <ul class="not-prose mt-3 flex list-none flex-wrap gap-2 pl-0" aria-label="Organisms and targets">
+            {d.organisms.map((o) => <li><Chip text={o} italic /></li>)}
+            {d.targets.map((t) => <li><Chip text={t} /></li>)}
+          </ul>
+        )
+      }
+    </div>
+
+    <footer class="no-print mt-12 flex max-w-[var(--container-prose)] flex-col gap-8">
+      {
+        related.length > 0 && (
+          <section aria-labelledby="related-title">
+            <h2 id="related-title" class="section-title">Related publications</h2>
+            <ul class="card divide-border flex flex-col divide-y">
+              {related.map((pub) => (
+                <li class="p-5">
+                  <PublicationItem pub={pub} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+      {
+        (prev || next) && (
+          <nav aria-label="More projects" class="grid gap-4 sm:grid-cols-2">
+            {prev ? (
+              <a href={url(`/research/${prev.id}/`)} class="card card-link flex flex-col gap-1 p-4 no-underline">
+                <span class="text-muted text-sm">Previous project</span>
+                <span class="text-text font-semibold" set:html={italicize(prev.data.title)} />
+              </a>
+            ) : <span />}
+            {next && (
+              <a href={url(`/research/${next.id}/`)} class="card card-link flex flex-col gap-1 p-4 text-right no-underline">
+                <span class="text-muted text-sm">Next project</span>
+                <span class="text-text font-semibold" set:html={italicize(next.data.title)} />
+              </a>
+            )}
+          </nav>
+        )
+      }
+    </footer>
+  </article>
+</BaseLayout>

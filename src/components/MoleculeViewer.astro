@@ -1,0 +1,174 @@
+---
+/**
+ * Interactive 3D view of a docked ligand in its protein pocket.
+ * The static image and caption render first; 3Dmol.js loads only when the
+ * viewer scrolls into view. Use only for published work.
+ *
+ * <MoleculeViewer structure="buche-complex.pdb" ligand="LIG" alt="..." caption="..." fallback="/structures/buche-complex.png" />
+ */
+import { url } from '../lib/paths.ts';
+
+interface Props {
+  /** File name of a PDB or SDF in public/structures/. */
+  structure: string;
+  /** Residue name of the ligand to highlight, for example "LIG". */
+  ligand?: string;
+  /** Required: what the structure shows, for people who cannot see the 3D view. */
+  alt: string;
+  caption?: string;
+  /** Static PNG under public/, shown before and without JavaScript. */
+  fallback?: string;
+}
+
+const { structure, ligand = '', alt, caption, fallback } = Astro.props;
+const structureUrl = url(`/structures/${structure.replace(/^\/?(structures\/)?/, '')}`);
+const format = structure.toLowerCase().endsWith('.sdf') ? 'sdf' : 'pdb';
+const id = `mol-${structure.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
+---
+
+<figure class="my-8" data-molecule-viewer data-structure={structureUrl} data-format={format} data-ligand={ligand}>
+  <div
+    class="border-border bg-surface relative aspect-[4/3] w-full overflow-hidden rounded-[10px] border"
+    role="img"
+    aria-label={alt}
+    id={id}
+  >
+    {
+      fallback ? (
+        <img
+          src={url(fallback)}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          class="absolute inset-0 h-full w-full object-contain"
+          data-molecule-fallback
+        />
+      ) : (
+        <p class="text-muted absolute inset-0 flex items-center justify-center p-6 text-center" data-molecule-fallback>
+          {alt}
+        </p>
+      )
+    }
+    <div class="absolute inset-0" data-molecule-canvas></div>
+  </div>
+  <div class="js-only mt-3 flex flex-wrap gap-2" role="group" aria-label="3D view controls" data-molecule-controls>
+    <button type="button" class="mol-btn" data-action="rotate" aria-pressed="false" disabled>Rotate</button>
+    <button type="button" class="mol-btn" data-action="reset" disabled>Reset view</button>
+    <button type="button" class="mol-btn" data-action="cartoon" aria-pressed="true" disabled>Cartoon</button>
+    <button type="button" class="mol-btn" data-action="surface" aria-pressed="false" disabled>Surface</button>
+    <button type="button" class="mol-btn" data-action="sticks" aria-pressed="false" disabled>Sticks</button>
+    <span class="text-muted self-center text-sm" data-molecule-status aria-live="polite"></span>
+  </div>
+  <figcaption class="text-muted mt-2 text-sm">
+    {caption}
+    <span class="block">Text description: {alt}</span>
+  </figcaption>
+</figure>
+
+<style>
+  .mol-btn {
+    min-height: 2.75rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.85rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .mol-btn[aria-pressed='true'] {
+    background: var(--primary);
+    color: var(--on-primary);
+    border-color: var(--primary);
+  }
+  .mol-btn:disabled {
+    opacity: 0.5;
+  }
+</style>
+
+<script>
+  type Viewer = {
+    addModel: (data: string, format: string) => unknown;
+    setStyle: (sel: object, style: object) => void;
+    addSurface: (type: unknown, style: object, sel: object) => void;
+    removeAllSurfaces: () => void;
+    zoomTo: (sel?: object) => void;
+    render: () => void;
+    spin: (axis: string | boolean) => void;
+    resize: () => void;
+  };
+
+  async function start(figure: HTMLElement) {
+    const canvas = figure.querySelector<HTMLElement>('[data-molecule-canvas]');
+    const status = figure.querySelector<HTMLElement>('[data-molecule-status]');
+    const buttons = [...figure.querySelectorAll<HTMLButtonElement>('[data-action]')];
+    if (!canvas) return;
+    const say = (text: string) => status && (status.textContent = text);
+    say('Loading 3D view…');
+
+    try {
+      const [mod, response] = await Promise.all([
+        import('3dmol'),
+        fetch(figure.dataset.structure ?? ''),
+      ]);
+      if (!response.ok) throw new Error(`structure file returned ${response.status}`);
+      const data = await response.text();
+      const $3Dmol = ((mod as { default?: unknown }).default ?? mod) as {
+        createViewer: (el: HTMLElement, opts: object) => Viewer;
+        SurfaceType: { VDW: unknown };
+      };
+
+      const dark = document.documentElement.dataset.theme === 'dark';
+      const viewer = $3Dmol.createViewer(canvas, { backgroundColor: dark ? '#111c1b' : '#f6faf9' });
+      viewer.addModel(data, figure.dataset.format ?? 'pdb');
+      const ligand = figure.dataset.ligand ? { resn: figure.dataset.ligand } : { hetflag: true };
+
+      const state = { cartoon: true, surface: false, sticks: false, rotate: false };
+      const apply = () => {
+        viewer.setStyle({}, state.cartoon ? { cartoon: { color: 'spectrum' } } : state.sticks ? { stick: { radius: 0.15 } } : { line: {} });
+        if (state.sticks && state.cartoon) viewer.setStyle({ hetflag: false }, { cartoon: { color: 'spectrum' }, stick: { radius: 0.12 } });
+        viewer.setStyle(ligand, { stick: { colorscheme: 'greenCarbon', radius: 0.25 } });
+        viewer.removeAllSurfaces();
+        if (state.surface) viewer.addSurface($3Dmol.SurfaceType.VDW, { opacity: 0.6, color: 'white' }, { hetflag: false });
+        viewer.render();
+      };
+      const reset = () => {
+        viewer.zoomTo(ligand);
+        viewer.render();
+      };
+
+      apply();
+      reset();
+      figure.querySelector<HTMLElement>('[data-molecule-fallback]')?.setAttribute('hidden', '');
+      buttons.forEach((b) => (b.disabled = false));
+      say('');
+
+      figure.addEventListener('click', (event) => {
+        const button = (event.target as Element).closest<HTMLButtonElement>('[data-action]');
+        if (!button) return;
+        const action = button.dataset.action as keyof typeof state | 'reset';
+        if (action === 'reset') return reset();
+        state[action] = !state[action];
+        button.setAttribute('aria-pressed', String(state[action]));
+        if (action === 'rotate') viewer.spin(state.rotate ? 'y' : false);
+        else apply();
+      });
+      window.addEventListener('resize', () => viewer.resize());
+    } catch (error) {
+      console.error(error);
+      say('The 3D view could not load. The image and description above show the same structure.');
+    }
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        start(entry.target as HTMLElement);
+      }
+    },
+    { rootMargin: '200px' },
+  );
+  document.querySelectorAll<HTMLElement>('[data-molecule-viewer]').forEach((el) => observer.observe(el));
+</script>

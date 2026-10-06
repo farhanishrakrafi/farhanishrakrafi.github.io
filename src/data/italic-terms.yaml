@@ -1,0 +1,15 @@
+# Species and gene names that are set in italics automatically, wherever
+# they appear in Markdown, MDX and YAML text. Code and URLs are skipped.
+# Add one term per line. Protein names (for example MAPK3 as a protein)
+# stay roman, so do not list them here.
+
+- Escherichia coli
+- E. coli
+- Providencia stuartii
+- P. stuartii
+- Providencia rettgeri
+- P. rettgeri
+- Abroma augusta
+- Klebsiella pneumoniae
+- blaNDM-5
+- blaOXA-181

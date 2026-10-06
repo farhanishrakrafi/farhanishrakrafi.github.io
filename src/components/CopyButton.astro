@@ -1,0 +1,47 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  /** id of the element whose text is copied. */
+  target: string;
+  label?: string;
+  class?: string;
+}
+
+const { target, label = 'Copy', class: className } = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={[
+    'js-only border-border bg-bg text-text hover:bg-surface inline-flex min-h-9 items-center gap-2 rounded-lg border px-3 py-1 text-sm font-semibold',
+    className,
+  ]}
+  data-copy-target={target}
+>
+  <Icon name="copy" size={16} />
+  <span data-copy-label>{label}</span>
+</button>
+
+<script>
+  document.addEventListener('click', async (event) => {
+    const button = (event.target as Element | null)?.closest<HTMLButtonElement>('[data-copy-target]');
+    if (!button) return;
+    const source = document.getElementById(button.dataset.copyTarget ?? '');
+    const label = button.querySelector('[data-copy-label]');
+    if (!source || !label) return;
+    const original = label.textContent;
+    try {
+      await navigator.clipboard.writeText(source.textContent?.trim() ?? '');
+      label.textContent = 'Copied';
+    } catch {
+      label.textContent = 'Press Ctrl+C to copy';
+      const range = document.createRange();
+      range.selectNodeContents(source);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    }
+    setTimeout(() => (label.textContent = original), 2000);
+  });
+</script>

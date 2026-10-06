@@ -1,0 +1,19 @@
+---
+interface Props {
+  type?: 'note' | 'tip' | 'warning';
+  title?: string;
+}
+
+const { type = 'note', title } = Astro.props;
+const labels = { note: 'Note', tip: 'Tip', warning: 'Caution' };
+---
+
+<aside
+  class:list={[
+    'not-prose my-6 rounded-[10px] border-l-4 px-4 py-3',
+    type === 'warning' ? 'border-[#b45309] bg-[var(--badge-prep-bg)]' : 'border-primary bg-surface',
+  ]}
+>
+  <p class="font-semibold">{title ?? labels[type]}</p>
+  <div class="[&>*+*]:mt-2"><slot /></div>
+</aside>

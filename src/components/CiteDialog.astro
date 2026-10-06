@@ -1,0 +1,156 @@
+---
+import CopyButton from './CopyButton.astro';
+import Icon from './Icon.astro';
+import type { CitationFormats } from '../lib/citations.ts';
+
+interface Props {
+  id: string;
+  title: string;
+  citation: CitationFormats;
+}
+
+const { id, title, citation } = Astro.props;
+const tabs = [
+  { key: 'apa', label: 'APA', text: citation.apa },
+  { key: 'vancouver', label: 'Vancouver', text: citation.vancouver },
+  { key: 'bibtex', label: 'BibTeX', text: citation.bibtex },
+] as const;
+const dialogId = `cite-${id}`;
+---
+
+<button
+  type="button"
+  class="js-only border-border text-text hover:bg-surface inline-flex min-h-9 items-center gap-1.5 rounded-lg border px-3 py-1 text-sm font-semibold"
+  data-cite-open={dialogId}
+  aria-haspopup="dialog"
+>
+  <Icon name="file" size={16} />
+  Cite<span class="sr-only">: {title}</span>
+</button>
+
+<dialog
+  id={dialogId}
+  class="bg-bg text-text border-border m-auto w-[min(42rem,calc(100vw-2rem))] rounded-[10px] border p-0 shadow-2xl backdrop:bg-black/50"
+  aria-labelledby={`${dialogId}-title`}
+>
+  <div class="flex items-center justify-between gap-4 border-b border-border px-5 py-3">
+    <h2 id={`${dialogId}-title`} class="text-lg">Cite this publication</h2>
+    <form method="dialog">
+      <button
+        class="text-muted hover:bg-surface inline-flex h-11 w-11 items-center justify-center rounded-full"
+        aria-label="Close citation dialog"
+      >
+        <Icon name="close" />
+      </button>
+    </form>
+  </div>
+  <div class="px-5 py-4" data-tabs>
+    <div role="tablist" aria-label="Citation format" class="mb-3 flex gap-1">
+      {
+        tabs.map((tab, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`${dialogId}-tab-${tab.key}`}
+            aria-controls={`${dialogId}-panel-${tab.key}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            class="aria-selected:bg-primary aria-selected:text-on-primary text-text hover:bg-surface min-h-9 rounded-lg px-3 py-1 text-sm font-semibold"
+          >
+            {tab.label}
+          </button>
+        ))
+      }
+    </div>
+    {
+      tabs.map((tab, i) => (
+        <div
+          role="tabpanel"
+          id={`${dialogId}-panel-${tab.key}`}
+          aria-labelledby={`${dialogId}-tab-${tab.key}`}
+          hidden={i !== 0}
+          tabindex="0"
+          class="flex flex-col gap-3"
+        >
+          <pre
+            id={`${dialogId}-text-${tab.key}`}
+            class="bg-surface border-border max-h-72 overflow-auto rounded-lg border p-3 text-sm whitespace-pre-wrap"
+          >{tab.text}</pre>
+          <CopyButton target={`${dialogId}-text-${tab.key}`} label={`Copy ${tab.label}`} class="self-start" />
+        </div>
+      ))
+    }
+  </div>
+</dialog>
+
+<script>
+  let lastTrigger: HTMLElement | null = null;
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+    const opener = target?.closest<HTMLButtonElement>('[data-cite-open]');
+    if (opener) {
+      const dialog = document.getElementById(opener.dataset.citeOpen ?? '') as HTMLDialogElement | null;
+      if (!dialog) return;
+      lastTrigger = opener;
+      dialog.showModal();
+      dialog.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.focus();
+      return;
+    }
+    // A click on the backdrop (outside the dialog box) closes it.
+    if (target instanceof HTMLDialogElement && target.open) {
+      const box = target.getBoundingClientRect();
+      const e = event as MouseEvent;
+      const inside = e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom;
+      if (!inside) target.close();
+    }
+  });
+
+  document.addEventListener(
+    'close',
+    (event) => {
+      if (event.target instanceof HTMLDialogElement && lastTrigger) {
+        lastTrigger.focus();
+        lastTrigger = null;
+      }
+    },
+    true,
+  );
+
+  // Tabs: click or arrow keys switch the visible format.
+  function select(tab: HTMLElement) {
+    const list = tab.closest('[role="tablist"]');
+    const root = tab.closest('[data-tabs]');
+    if (!list || !root) return;
+    list.querySelectorAll<HTMLElement>('[role="tab"]').forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      const panel = root.querySelector<HTMLElement>(`#${t.getAttribute('aria-controls')}`);
+      if (panel) panel.hidden = !on;
+    });
+    tab.focus();
+  }
+
+  document.addEventListener('click', (event) => {
+    const tab = (event.target as Element | null)?.closest<HTMLElement>('[data-tabs] [role="tab"]');
+    if (tab) select(tab);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    const tab = (event.target as Element | null)?.closest<HTMLElement>('[data-tabs] [role="tab"]');
+    if (!tab) return;
+    const tabs = [...(tab.parentElement?.querySelectorAll<HTMLElement>('[role="tab"]') ?? [])];
+    const i = tabs.indexOf(tab);
+    const next =
+      event.key === 'ArrowRight' ? tabs[(i + 1) % tabs.length]
+      : event.key === 'ArrowLeft' ? tabs[(i - 1 + tabs.length) % tabs.length]
+      : event.key === 'Home' ? tabs[0]
+      : event.key === 'End' ? tabs[tabs.length - 1]
+      : undefined;
+    if (next) {
+      event.preventDefault();
+      select(next);
+    }
+  });
+</script>

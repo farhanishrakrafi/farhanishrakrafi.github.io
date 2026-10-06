@@ -1,0 +1,27 @@
+---
+import { fullName, isSelf, shortName, type Person } from '../lib/publications.ts';
+
+interface Props {
+  authors: Person[];
+  etAl?: boolean;
+  /** "short": Islam MT, Rafi FI. "full": Md. Tarikul Islam, Farhan Ishrak Rafi. */
+  style?: 'short' | 'full';
+}
+
+const { authors, etAl = false, style = 'short' } = Astro.props;
+const rendered = await Promise.all(
+  authors.map(async (a) => ({ name: style === 'short' ? shortName(a) : fullName(a), self: await isSelf(a) })),
+);
+---
+
+<span class="authors">
+  {
+    rendered.map((a, i) => (
+      <>
+        {a.self ? <strong class="text-text font-semibold">{a.name}</strong> : <span>{a.name}</span>}
+        {i < rendered.length - 1 ? ', ' : ''}
+      </>
+    ))
+  }
+  {etAl && <span>, <em>et al.</em></span>}
+</span>

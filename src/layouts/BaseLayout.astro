@@ -1,0 +1,143 @@
+---
+import '@fontsource/inter/latin-400.css';
+import '@fontsource/inter/latin-400-italic.css';
+import '@fontsource/inter/latin-600.css';
+import '@fontsource/jetbrains-mono/latin-400.css';
+import '../styles/global.css';
+import serif600 from '@fontsource/source-serif-4/files/source-serif-4-latin-600-normal.woff2?url';
+import serif600Italic from '@fontsource/source-serif-4/files/source-serif-4-latin-600-italic.woff2?url';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { ANALYTICS, SITE, VERIFICATION } from '../config/site.ts';
+import { absoluteUrl, url } from '../lib/paths.ts';
+import { breadcrumbJsonLd, jsonLdString, ogPath, pageTitle, type Crumb } from '../lib/seo.ts';
+
+interface Props {
+  /** Page title without the site suffix; leave out on the home page. */
+  title?: string;
+  /** 120 to 155 characters, written for the page. */
+  description: string;
+  /** Key of the generated social card, for example "research" or "research-<slug>". */
+  ogKey: string;
+  ogType?: 'website' | 'article' | 'profile';
+  /** Breadcrumb trail after Home, for BreadcrumbList structured data. */
+  crumbs?: Crumb[];
+  jsonLd?: unknown[];
+  /** srcset of the hero photo, preloaded on the home page. */
+  preloadImage?: string;
+  noindex?: boolean;
+  /** Mark main content for the search index. */
+  searchable?: boolean;
+}
+
+const {
+  title,
+  description,
+  ogKey,
+  ogType = 'website',
+  crumbs = [],
+  jsonLd = [],
+  preloadImage,
+  noindex = false,
+  searchable = true,
+} = Astro.props;
+
+const site = Astro.site;
+const fullTitle = pageTitle(title);
+const canonical = new URL(Astro.url.pathname, site ?? Astro.url).toString();
+const ogImage = absoluteUrl(ogPath(ogKey), site);
+const trail: Crumb[] = [{ name: 'Home', path: '/' }, ...crumbs];
+const structured = [...jsonLd, breadcrumbJsonLd(trail, site)];
+
+// Headings use font-display: optional, so a late font never re-wraps a long title
+// (layout shift). The upright weight is preloaded, so it is normally ready in time.
+const serifFaces = [
+  [serif600, 'normal'],
+  [serif600Italic, 'italic'],
+]
+  .map(
+    ([src, style]) =>
+      `@font-face{font-family:'Source Serif 4';font-style:${style};font-weight:600;font-display:optional;src:url(${src}) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}`,
+  )
+  .join('');
+
+// Runs before first paint: picks the saved or system theme, so there is no flash.
+const themeScript = `(function(){var d=document.documentElement;d.classList.add('js');var t;try{t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}d.dataset.theme=t})();`;
+---
+
+<!doctype html>
+<html lang={SITE.lang} data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline set:html={themeScript} />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#0F766E" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="preload" href={serif600} as="font" type="font/woff2" crossorigin />
+    <style is:inline set:html={serifFaces}></style>
+    {preloadImage && <link rel="preload" as="image" type="image/avif" imagesrcset={preloadImage} fetchpriority="high" />}
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.titleSuffix}: news and notes`} href={url('/rss.xml')} />
+    <link rel="sitemap" href={url('/sitemap-index.xml')} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE.titleSuffix} />
+    <meta property="og:locale" content={SITE.locale} />
+    <meta property="og:title" content={title ?? SITE.homeTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${title ?? SITE.titleSuffix}, ${SITE.titleSuffix}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title ?? SITE.homeTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {VERIFICATION.google && <meta name="google-site-verification" content={VERIFICATION.google} />}
+    {VERIFICATION.bing && <meta name="msvalidate.01" content={VERIFICATION.bing} />}
+
+    <slot name="head" />
+
+    {structured.map((data) => <script type="application/ld+json" set:html={jsonLdString(data)} />)}
+
+    {
+      ANALYTICS.goatcounterCode && (
+        <script
+          is:inline
+          defer
+          data-goatcounter={`https://${ANALYTICS.goatcounterCode}.goatcounter.com/count`}
+          src="https://gc.zgo.at/count.js"
+        />
+      )
+    }
+    {
+      ANALYTICS.cloudflareToken && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({ token: ANALYTICS.cloudflareToken })}
+        />
+      )
+    }
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <a
+      href="#main"
+      class="skip-link sr-only-focusable bg-primary text-on-primary fixed top-2 left-2 z-50 rounded-lg px-4 py-3 font-semibold"
+    >
+      Skip to main content
+    </a>
+    <Header />
+    <main id="main" tabindex="-1" class="flex-1 outline-none" data-pagefind-body={searchable ? '' : undefined}>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

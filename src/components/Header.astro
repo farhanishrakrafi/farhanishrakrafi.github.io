@@ -1,0 +1,74 @@
+---
+import Icon from './Icon.astro';
+import SearchButton from './SearchButton.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { FEATURES, NAV } from '../config/site.ts';
+import { getNotes, getProfile } from '../lib/content.ts';
+import { stripBase, url } from '../lib/paths.ts';
+
+const profile = await getProfile();
+const hasNotes = (await getNotes()).length > 0;
+const items = NAV.filter((item) => item.href !== '/notes/' || hasNotes);
+const current = stripBase(Astro.url.pathname);
+const isCurrent = (href: string) => current === href || current.startsWith(href);
+---
+
+<header data-site-header class="border-border bg-bg/95 sticky top-0 z-40 border-b backdrop-blur">
+  <div class="container-site flex h-16 items-center justify-between gap-3">
+    <a href={url('/')} class="text-text font-serif text-base leading-tight font-semibold no-underline sm:text-lg" aria-current={current === '/' ? 'page' : undefined}>
+      {profile.name}
+    </a>
+
+    <nav aria-label="Main" class="hidden md:block">
+      <ul class="flex items-center gap-1">
+        {
+          items.map((item) => (
+            <li>
+              <a
+                href={url(item.href)}
+                aria-current={isCurrent(item.href) ? 'page' : undefined}
+                class="text-text hover:bg-surface aria-[current=page]:text-primary inline-flex min-h-11 items-center rounded-lg px-3 font-medium no-underline aria-[current=page]:underline aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-1">
+      {FEATURES.search && <SearchButton />}
+      <ThemeToggle />
+      <details class="group relative md:hidden" data-mobile-menu>
+        <summary
+          class="text-text hover:bg-surface flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full [&::-webkit-details-marker]:hidden"
+        >
+          <Icon name="menu" class="group-open:hidden" />
+          <Icon name="close" class="hidden group-open:block" />
+          <span class="sr-only">Menu</span>
+        </summary>
+        <nav
+          aria-label="Main (mobile)"
+          class="border-border bg-bg absolute right-0 mt-2 w-56 rounded-[10px] border p-2 shadow-xl"
+        >
+          <ul class="flex flex-col">
+            {
+              items.map((item) => (
+                <li>
+                  <a
+                    href={url(item.href)}
+                    aria-current={isCurrent(item.href) ? 'page' : undefined}
+                    class="text-text hover:bg-surface aria-[current=page]:text-primary flex min-h-11 items-center rounded-lg px-3 font-medium no-underline"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
