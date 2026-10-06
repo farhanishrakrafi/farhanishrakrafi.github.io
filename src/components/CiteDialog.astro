@@ -74,6 +74,8 @@ const dialogId = `cite-${id}`;
         >
           <pre
             id={`${dialogId}-text-${tab.key}`}
+            tabindex="0"
+            aria-label={`${tab.label} citation`}
             class="bg-surface border-border max-h-72 overflow-auto rounded-lg border p-3 text-sm whitespace-pre-wrap"
           >{tab.text}</pre>
           <CopyButton target={`${dialogId}-text-${tab.key}`} label={`Copy ${tab.label}`} class="self-start" />
