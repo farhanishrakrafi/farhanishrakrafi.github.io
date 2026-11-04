@@ -77,7 +77,7 @@ function warnAboutAssets(images: string[]) {
 }
 
 /**
- * Hero photo at 176 px and 352 px (2x), as AVIF and WebP with a JPEG fallback.
+ * Hero photo at 560 px and 940 px (2x), as AVIF and WebP with a JPEG fallback.
  * Cropped to a square around the most interesting part of the picture (usually the face).
  */
 export async function heroPhoto(fileName: string): Promise<HeroPhoto | undefined> {
@@ -94,11 +94,11 @@ export async function heroPhoto(fileName: string): Promise<HeroPhoto | undefined
       quality: format === 'avif' ? 55 : 70,
     });
   const [a1, a2, w1, w2, j1] = await Promise.all([
-    make('avif', 176),
-    make('avif', 352),
-    make('webp', 176),
-    make('webp', 352),
-    make('jpeg', 352),
+    make('avif', 560),
+    make('avif', 940),
+    make('webp', 560),
+    make('webp', 940),
+    make('jpeg', 940),
   ]);
   return {
     avifSrcset: `${a1.src} 1x, ${a2.src} 2x`,
