@@ -22,7 +22,7 @@ const person = {
   sameAs: Object.values(profile.links).filter(Boolean),
 };
 ---
-<BaseLayout description="Farhan Ishrak Rafi is a biochemist and scientific AI evaluator in Dhaka, working in bacterial genomics, drug discovery and expert benchmarking." ogKey="home" ogType="profile" jsonLd={[person]} preloadImage={photo?.avifSrcset}>
+<BaseLayout description="Farhan Ishrak Rafi is a biochemist and scientific AI evaluator in Dhaka, working in bacterial genomics, drug discovery and expert benchmarking." ogKey="home" ogType="profile" jsonLd={[person]} preloadImage={photo?.avifSrcset} preloadImageSizes={photo?.sizes}>
   <div class="container-site homepage">
     <Hero photo={photo} />
     <div class="evidence-strip" aria-label="Background and expertise">
