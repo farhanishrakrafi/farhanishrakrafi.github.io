@@ -130,6 +130,8 @@ export const PROJECT_STATUSES = [
   'in-preparation',
   'ongoing',
   'completed',
+  'analysis-complete',
+  'starting',
   'proposal',
 ] as const;
 
