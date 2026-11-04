@@ -1,10 +1,5 @@
-# Site identity. Edit the values, keep the keys.
-# Any link left empty ('') hides its icon everywhere on the site.
-
+# Public professional profile.
 name: Farhan Ishrak Rafi
-
-# Every spelling of the name that can appear in an author list.
-# Used to show the name in bold. CONFIRM against the Scientific Reports author list.
 nameVariants:
   - Farhan Ishrak Rafi
   - Farhan I. Rafi
@@ -13,46 +8,28 @@ nameVariants:
   - Rafi F.I.
   - Rafi, F. I.
   - Rafi, Farhan Ishrak
-
-headline: Biochemist · Bacterial genomics · Computational drug discovery
-
+headline: Biochemist & scientific AI evaluator
 researchStatement: >-
-  I combine wet-lab microbiology with genome analysis and molecular simulation
-  to study antimicrobial resistance and find new drug leads.
-
-affiliation: >-
-  Bioinformatics and Structural Biology Laboratory, Department of Biochemistry
-  and Molecular Biology, University of Rajshahi
-
-# Short form used in structured data (schema.org) and social cards.
+  I connect wet-lab microbiology, computational biology and scientific AI evaluation.
+  My work spans antimicrobial resistance genomics, drug discovery and expert benchmarks for AI.
+affiliation: Department of Biochemistry and Molecular Biology, University of Rajshahi
 institution: University of Rajshahi
-
 location: Dhaka, Bangladesh
 timezone: Asia/Dhaka (UTC+6)
-
 email: farhanishrakrafi@yahoo.com
-
-# One line shown under the hero. Set to '' to hide the banner.
 availability: >-
-  Open to fully funded PhD positions (2027 intake) and pharmaceutical QC,
-  Microbiology and R&D roles.
-
-# Shown on the Contact page.
+  Open to biotech roles, scientific AI evaluation and research collaborations.
 openTo:
-  - Fully funded PhD positions (2027 intake)
-  - Research collaborations in antimicrobial resistance, bacterial genomics and drug discovery
-  - Pharmaceutical QC, Microbiology and R&D roles
-
-# Put the headshot at src/assets/photo.jpg. Until it exists, the site shows initials.
+  - Biotech roles in genomics, biologics and vaccine development
+  - Computational drug discovery
+  - Scientific AI evaluation and benchmark authoring
+  - Research collaborations
 photo: photo.jpg
-photoAlt: Farhan Ishrak Rafi in a lab coat and gloves, working with Petri dishes at a laboratory cabinet
-
+photoAlt: Farhan Ishrak Rafi in a lab coat and gloves, working at a laboratory cabinet
 links:
   orcid: ''
   scholar: ''
-  github: ''
+  github: https://github.com/farhanishrakrafi
   linkedin: https://www.linkedin.com/in/farhanishrakrafi
   researchgate: ''
-
-# Show the scientific AI evaluation work on the CV page.
 showProfessionalExperience: true

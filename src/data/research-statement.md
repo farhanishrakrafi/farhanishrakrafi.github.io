@@ -1,7 +1,5 @@
-<!-- Long-form statement shown on /research/ (120 to 180 words). CONFIRM the wording. -->
+My work connects experimental biology, computational analysis and the evaluation of scientific AI. I am a Biochemistry and Molecular Biology graduate from the University of Rajshahi, based in Dhaka, Bangladesh.
 
-My work starts at the bench and continues at the computer. For my M.Sc. thesis in Biochemistry and Molecular Biology at the University of Rajshahi, I am characterising a multidrug-resistant Escherichia coli ST361 isolate from a wound infection that carries two carbapenemase genes, blaNDM-5 and blaOXA-181. I test how the isolate responds to antibiotics in the lab, then analyse its whole genome to find the resistance genes, plasmids and lineage behind that phenotype.
+In biology, I work across wet-lab microbiology, antimicrobial resistance genomics and computational drug discovery. My M.Sc. research combines bacterial characterisation with genome analysis. Alongside it, I use molecular modelling, machine learning and multi-omics methods to investigate biological questions. I am a co-author of a *Scientific Reports* study on dietary compounds and butyrylcholinesterase, with a published contribution to data analysis and manuscript writing.
 
-Alongside this, I use structure-based methods to look for new drug leads. I contributed to a published in silico screen of dietary compounds against butyrylcholinesterase, a drug target in Alzheimer's disease, and I am working on further docking, molecular dynamics and network pharmacology projects.
-
-In a PhD I want to keep both halves together: careful wet-lab microbiology to produce reliable phenotypes, and genomics and simulation to explain them and suggest what to test next.
+In AI evaluation, I author expert biology benchmarks, review scientific reasoning and design scoring rubrics. My freelance work also includes multimodal research tasks, tool-use evaluation and Bengali-language data quality. Across both areas, I care about clear questions, reproducible evidence and conclusions that the evidence can support.
