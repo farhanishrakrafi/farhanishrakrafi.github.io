@@ -7,6 +7,7 @@ export interface HeroPhoto {
   avifSrcset: string;
   webpSrcset: string;
   fallback: string;
+  sizes: string;
 }
 
 // Any letter case: phones and cameras often save "IMG_1234.JPG" or "Photo.Jpg".
@@ -77,7 +78,7 @@ function warnAboutAssets(images: string[]) {
 }
 
 /**
- * Hero photo at 560 px and 940 px (2x), as AVIF and WebP with a JPEG fallback.
+ * Responsive hero photo as AVIF and WebP, with a JPEG fallback.
  * Cropped to a square around the most interesting part of the picture (usually the face).
  */
 export async function heroPhoto(fileName: string): Promise<HeroPhoto | undefined> {
@@ -93,16 +94,21 @@ export async function heroPhoto(fileName: string): Promise<HeroPhoto | undefined
       position: 'attention',
       quality: format === 'avif' ? 55 : 70,
     });
-  const [a1, a2, w1, w2, j1] = await Promise.all([
+  const [a1, a2, a3, w1, w2, w3, j1] = await Promise.all([
     make('avif', 560),
+    make('avif', 640),
     make('avif', 940),
     make('webp', 560),
+    make('webp', 640),
     make('webp', 940),
     make('jpeg', 940),
   ]);
   return {
-    avifSrcset: `${a1.src} 1x, ${a2.src} 2x`,
-    webpSrcset: `${w1.src} 1x, ${w2.src} 2x`,
+    avifSrcset: `${a1.src} 560w, ${a2.src} 640w, ${a3.src} 940w`,
+    webpSrcset: `${w1.src} 560w, ${w2.src} 640w, ${w3.src} 940w`,
     fallback: j1.src,
+    // Match the portrait's single-column mobile and two-column desktop layout.
+    // Both the picture and its preload use this value to select the same file.
+    sizes: '(max-width: 767px) min(491px, calc(100vw - 72px)), (min-width: 1280px) 450px, 36vw',
   };
 }
