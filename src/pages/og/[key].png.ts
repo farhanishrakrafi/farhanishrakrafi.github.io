@@ -38,6 +38,7 @@ export const getStaticPaths = (async () => {
   return [
     page('home', profile.name, profile.headline, profile.affiliation),
     page('research', 'Research projects', profile.name),
+    page('ai-evaluation', 'Scientific AI evaluation', profile.name),
     page('publications', 'Publications', profile.name),
     page('cv', 'Curriculum vitae', profile.name),
     page('contact', 'Contact', profile.name, profile.availability || profile.headline),
