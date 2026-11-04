@@ -1,140 +1,179 @@
-# CV content for /cv/ and /cv.pdf. Items appear in the order written here.
-# Publications are NOT typed here: the CV reads them from publications.yaml.
-#
-# Dated items take: title, org, location, start, end, details, bullets.
-# Dates are plain text, for example '2024', 'May 2024' or '8 December 2024'.
-# showOnSite: false keeps an item out of the website and the public PDF.
-# Never add identity details, phone numbers, home address or referee contacts (SPEC.md section 11).
-
+# Public CV content. Publication records are maintained in publications.yaml.
 education:
   - title: M.Sc. in Biochemistry and Molecular Biology
     org: University of Rajshahi
     location: Rajshahi, Bangladesh
-    details: Final examinations appeared, results pending
+    start: February 2025
+    end: Present
+    details: Appeared in final examinations
     bullets:
-      - >-
-        Thesis: Phenotypic and genomic characterization of MDR Escherichia coli
-        ST361 carrying blaNDM-5 and blaOXA-181 from a wound infection
-      - 'Supervisor: Prof. Md. Tofazzal Hossain'
+      - Phenotypic and genomic characterization of multidrug-resistant Escherichia coli ST361
+      - 'Supervisor: Prof. Dr. Md. Tofazzal Hossain'
   - title: B.Sc. (Honours) in Biochemistry and Molecular Biology
     org: University of Rajshahi
     location: Rajshahi, Bangladesh
-    # CONFIRM: completion year to display (2024 or 2025), then set `end`.
-    details: CGPA 3.72/4.00
-  - title: Higher Secondary Certificate (HSC)
+    details: CGPA 3.72 out of 4.00
+  - title: Higher Secondary Certificate (Science)
+    org: Dhaka Imperial College
     end: '2019'
-    details: GPA 4.75
+    details: GPA 4.75 out of 5.00
     showOnSite: false
-  - title: Secondary School Certificate (SSC)
+  - title: Secondary School Certificate (Science)
+    org: National Ideal School and College
     end: '2017'
-    details: GPA 5.00
+    details: GPA 5.00 out of 5.00
     showOnSite: false
 
 researchExperience:
-  - title: M.Sc. thesis research
-    org: >-
-      Bioinformatics and Structural Biology Laboratory, Department of
-      Biochemistry and Molecular Biology, University of Rajshahi
+  - title: M.Sc. Thesis Researcher
+    org: Department of Biochemistry and Molecular Biology, University of Rajshahi
     location: Rajshahi, Bangladesh
-    details: 'Supervisor: Prof. Md. Tofazzal Hossain'
+    start: '2025'
+    end: Present
+    details: 'Supervisor: Prof. Dr. Md. Tofazzal Hossain'
     bullets:
-      - >-
-        Phenotypic and genomic characterization of a multidrug-resistant
-        Escherichia coli ST361 isolate carrying blaNDM-5 and blaOXA-181 from a
-        wound infection
+      - Combined wet-lab microbiology and whole-genome analysis in an antimicrobial resistance research project.
+      - Conducted bacterial identification, antimicrobial susceptibility testing and comparative genomic analysis.
+      - Produced publication figures in R, including genome maps, heatmaps, phylogenies and pangenome visualisations.
   - title: Research Assistant
     org: Biological Research on the Brain (BRB)
+    location: Bangladesh (remote)
     start: May 2024
     end: February 2026
+    bullets:
+      - Conducted computational drug discovery research for Alzheimer's disease.
+      - Contributed data analysis and manuscript writing to a peer-reviewed Scientific Reports article published in 2025.
+      - Worked with molecular docking, binding free energy estimation, ADMET profiling, molecular dynamics and DFT analysis.
 
 training:
-  - title: In-plant training
-    org: BCSIR Laboratories Rajshahi
+  - title: In-plant Trainee
+    org: BCSIR Laboratories, Rajshahi
     location: Rajshahi, Bangladesh
     start: 8 December 2024
     end: 12 December 2024
     bullets:
-      - 'Hands-on: UV-Visible spectrophotometry, FTIR-ATR, preparative HPLC'
-      - >-
-        Observed: GC-MS, Ion-Trap MS, automated melting point determination,
-        Biolog microbial identification
+      - 'Hands-on training: UV-Visible spectrophotometry, FTIR-ATR and preparative HPLC.'
+      - 'Observed: GC-MS, ion-trap mass spectrometry, automated melting point analysis and Biolog microbial identification.'
+      - Followed laboratory safety, record-keeping and standard operating procedures.
 
 workshops:
-  - title: Basics of Pharmaceuticals (workshop)
+  - title: Basics of Pharmaceuticals
     org: University of Rajshahi
     start: 31 May 2024
-  - title: Preparing for the Corporate World (seminar)
+    details: Good Manufacturing Practice and Standard Operating Procedures
+  - title: Preparing for the Corporate World
+    org: Biochemistry and Molecular Biology Career Club, University of Rajshahi
     start: 31 July 2026
 
-# Shown only when showProfessionalExperience is true in profile.yaml.
-# List only what is already public on LinkedIn: no client codenames or NDA details.
 experience:
-  - title: Scientific AI evaluation (freelance)
-    # CONFIRM: add start and end dates from the current CV.
+  - title: Biology Expert and Benchmark Author
+    org: Poindexter Labs
+    location: United Kingdom (remote)
+    start: October 2025
+    end: Present
     bullets:
-      - Biology benchmark authoring for Poindexter Labs
-      - >-
-        Scientific evaluation of AI model outputs for Mercor, Outlier (Scale AI),
-        SME Careers, CNTXT AI and TELUS Digital
+      - Author expert biology benchmark tasks with verifiable answers for frontier AI evaluation.
+      - Peer-review scientific accuracy, ambiguity and robustness in expert-authored tasks.
+      - Compare model responses against calibrated, multidimensional quality rubrics.
+  - title: AI Trainer and Task Writer
+    org: Mercor
+    location: Remote
+    bullets:
+      - Evaluate multilingual voice-agent sessions and verify transcripts against ground truth.
+      - Assess language-model tool selection and multi-turn reasoning using structured rubrics.
+      - Write multimodal research tasks that combine image investigation and web search, with reference answers and human trajectories.
+  - title: AI Trainer
+    org: Outlier (Scale AI)
+    location: Remote
+    start: May 2024
+    end: July 2026
+    bullets:
+      - Wrote and evaluated prompts and model responses for accuracy, reasoning and instruction following.
+      - Designed Bengali cultural reasoning tasks that assess multi-step inference.
+  - title: Data Annotator
+    org: CNTXT AI
+    location: Remote
+    start: April 2026
+    end: May 2026
+    bullets:
+      - Annotated image datasets with bounding boxes, polygons and keypoints for detection, segmentation and pose estimation.
+  - title: Scientific evaluation and data quality
+    location: Freelance, remote
+    bullets:
+      - Design and calibrate scoring rubrics for expert reference documents and presentations.
+      - Write Bengali-language prompts and rubrics, and annotate Bengali document OCR.
+      - Perform multilingual audio transcription and review recorded professional software workflows.
 
 leadership:
   - title: Vice President
-    org: American Society for Microbiology (ASM) Student Chapter, University of Rajshahi
-    start: '2024'
-    end: '2025'
+    org: American Society for Microbiology Student Chapter, University of Rajshahi
+    start: January 2024
+    end: January 2025
+    bullets:
+      - Led public awareness programmes on dengue and antimicrobial resistance.
+      - Ran a thalassemia awareness and screening campaign and the Safe Stray Initiative.
+      - Chapter outreach featured in the ASM Young Leaders Circle Newsletter in September 2025.
   - title: Joint Secretary
-    org: American Society for Microbiology (ASM) Student Chapter, University of Rajshahi
-    start: '2023'
+    org: American Society for Microbiology Student Chapter, University of Rajshahi
+    start: July 2023
+    end: December 2023
+  - title: Office Secretary
+    org: Biochemistry and Molecular Biology English Language Club, University of Rajshahi
+    start: April 2023
+    end: July 2024
 
 awards:
-  - title: Finalist (Top 10), Science, National STEAM Olympiad 2023
-    start: '2023'
-  - title: 4th place, 1st National Biotechnology Olympiad 2022
-    start: '2022'
-  - title: Round 2 qualifier, Chemical Metrology Olympiad 2023
-    org: Bangladesh Reference Institute for Chemical Measurements (BRiCM)
-    start: '2023'
+  - title: 4th place, University Category, 1st National Biotechnology Olympiad 2022
+    org: Biotech Club, Jahangirnagar University
+    start: November 2022
+  - title: Finalist, Top 10, Science segment, National STEAM Olympiad 2023
+    start: July 2024
+  - title: Round 2 qualifier, Group C (University Category), Chemical Metrology Olympiad 2023
+    org: Bangladesh Reference Institute for Chemical Measurements
+    start: August 2023
 
 memberships:
-  - American Society for Microbiology
-  - American Chemical Society
-  - British Pharmacological Society
-  - African Society for Laboratory Medicine
+  - American Society for Microbiology, Global Outreach Student Member (since 2023)
+  - American Chemical Society, Community Associate (since 2023)
+  - British Pharmacological Society, Undergraduate Member (since 2023)
+  - African Society for Laboratory Medicine, Member (since 2023)
 
 languages:
   - name: Bengali
     level: Native
   - name: English
-    level: Full professional
+    level: Full professional proficiency
   - name: Hindi
-    level: Working
+    level: Professional working proficiency
 
 skills:
   wetLab:
-    - Aseptic technique
-    - Culture and media preparation
-    - Disc diffusion
-    - Broth microdilution
-    - Colistin broth disk elution
-    - Biochemical identification
+    - Aseptic technique and laboratory documentation
+    - Bacterial culture and biochemical identification
+    - Antimicrobial susceptibility testing
+    - Analytical instrumentation training
   genomics:
-    - WGS analysis
-    - Resistome, virulome and plasmidome profiling
-    - MLST
-    - Phylogenomics
+    - Whole-genome analysis and annotation
+    - Comparative and population genomics
+    - MLST and phylogenomics
     - Pangenome analysis
+    - Publication-quality genomic visualisation
   structural:
-    - Molecular docking
+    - Molecular docking (AutoDock Vina)
     - Molecular dynamics (GROMACS)
-    - MM-GBSA
+    - MM-GBSA binding free energy estimation
     - ADMET profiling
-    - DFT
+    - DFT analysis
+    - Machine learning-guided virtual screening
   omics:
-    - Differential expression
-    - WGCNA
-    - PPI networks
-    - Microbiome (QIIME2, DADA2, LEfSe, PICRUSt2)
+    - Differential expression analysis
+    - DNA methylation and expression integration
+    - WGCNA and protein interaction networks
+    - Functional enrichment
+    - Biostatistics and diagnostic validation
   tools:
-    - R
-    - LaTeX
-    - Linux command line
+    - R, Python and Bash
+    - Linux, Git, Conda and Miniforge
+    - RDKit, CatBoost and XGBoost
+    - Cytoscape, CytoHubba and Enrichr
+    - LaTeX and scientific manuscript writing

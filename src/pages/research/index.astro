@@ -17,8 +17,8 @@ const showFilters = projects.length > 1 && (themes.length > 1 || statuses.length
   crumbs={[{ name: 'Research', path: '/research/' }]}
 >
   <div class="container-site flex flex-col gap-10 py-10 md:py-14">
-    <header class="flex flex-col gap-4">
-      <h1 class="text-3xl">Research</h1>
+    <header class="research-intro">
+      <div><p class="section-label">Biological research</p><h1 class="text-3xl">Research,<br />across scales.</h1></div>
       <div class="prose text-lg">
         <Statement />
       </div>
@@ -55,7 +55,7 @@ const showFilters = projects.length > 1 && (themes.length > 1 || statuses.length
         )
       }
 
-      <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-project-list>
+      <ul class="grid gap-5 md:grid-cols-2" data-project-list>
         {
           projects.map((project, i) => (
             <li class="flex [&>article]:w-full">
@@ -72,6 +72,10 @@ const showFilters = projects.length > 1 && (themes.length > 1 || statuses.length
 </BaseLayout>
 
 <style>
+  .research-intro { display: grid; grid-template-columns: 1fr 1.5fr; gap: 3rem; padding-block: 1rem; }
+  .research-intro h1 { font-size: clamp(2.5rem, 4.5vw, 3.7rem); line-height: 1.12; letter-spacing: -.04em; }
+  .research-intro .prose { font-size: .9rem; line-height: 1.8; color: var(--muted); }
+  @media (max-width: 767px) { .research-intro { grid-template-columns: 1fr; gap: 1.4rem; } }
   .filter-chip {
     min-height: 2.25rem;
     border-radius: 9999px;

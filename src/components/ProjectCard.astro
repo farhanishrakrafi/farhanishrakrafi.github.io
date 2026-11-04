@@ -36,13 +36,9 @@ const subjects = [...d.organisms.map((o) => ({ text: o, italic: true })), ...d.t
         loading={lazy ? 'lazy' : 'eager'}
       />
     ) : (
-      <div class="from-primary-soft to-surface aspect-[16/9] w-full bg-gradient-to-br" aria-hidden="true">
-        <svg viewBox="0 0 320 180" class="text-primary h-full w-full opacity-30" fill="none" stroke="currentColor">
-          <circle cx="250" cy="40" r="60" stroke-width="1.5" />
-          <circle cx="250" cy="40" r="35" stroke-width="1.5" />
-          <path d="M0 150 C 80 110, 160 190, 320 120" stroke-width="2" />
-          <path d="M0 165 C 90 130, 170 200, 320 140" stroke-width="1" />
-        </svg>
+      <div class="project-heading-label" aria-hidden="true">
+        <span>{d.themes.includes('amr-genomics') ? 'Genomics' : d.themes.includes('drug-discovery') ? 'Drug discovery' : d.themes.includes('multi-omics') ? 'Multi-omics' : 'Research'}</span>
+        <span>↗</span>
       </div>
     )
   }
@@ -72,3 +68,12 @@ const subjects = [...d.organisms.map((o) => ({ text: o, italic: true })), ...d.t
     </ul>
   </div>
 </article>
+
+<style>
+  article { background: var(--bg); border-radius: 4px; }
+  .project-heading-label { display: flex; justify-content: space-between; padding: 1.2rem 1.2rem .5rem; font-family: var(--font-mono); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); }
+  .project-heading-label span:last-child { font-size: 1.1rem; line-height: 1; }
+  article :global(h3) { font-size: 1.35rem; letter-spacing: -.02em; }
+  article :global(p) { font-size: .82rem; line-height: 1.75; }
+  article :global(.chip) { background: var(--surface); }
+</style>

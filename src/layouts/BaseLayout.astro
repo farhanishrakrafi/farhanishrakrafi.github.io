@@ -25,6 +25,8 @@ interface Props {
   jsonLd?: unknown[];
   /** srcset of the hero photo, preloaded on the home page. */
   preloadImage?: string;
+  /** Same responsive sizes as the preloaded picture's source elements. */
+  preloadImageSizes?: string;
   noindex?: boolean;
   /** Mark main content for the search index. */
   searchable?: boolean;
@@ -38,6 +40,7 @@ const {
   crumbs = [],
   jsonLd = [],
   preloadImage,
+  preloadImageSizes,
   noindex = false,
   searchable = true,
 } = Astro.props;
@@ -89,8 +92,9 @@ const themeScript = `(function(){var d=document.documentElement;d.classList.add(
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <link rel="preload" href={serif600} as="font" type="font/woff2" crossorigin />
+    {ogKey === 'home' && <link rel="preload" href={serif600Italic} as="font" type="font/woff2" crossorigin />}
     <style is:inline set:html={fontFaces}></style>
-    {preloadImage && <link rel="preload" as="image" type="image/avif" imagesrcset={preloadImage} fetchpriority="high" />}
+    {preloadImage && <link rel="preload" as="image" type="image/avif" imagesrcset={preloadImage} imagesizes={preloadImageSizes} fetchpriority="high" />}
     <link rel="alternate" type="application/rss+xml" title={`${SITE.titleSuffix}: news and notes`} href={url('/rss.xml')} />
     <link rel="sitemap" href={url('/sitemap-index.xml')} />
 

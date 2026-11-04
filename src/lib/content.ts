@@ -10,10 +10,12 @@ const SHOW_DRAFTS = import.meta.env.DEV;
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
   published: 'Published',
   'under-review': 'Under review',
-  'in-preparation': 'In preparation',
+  'in-preparation': 'Manuscript in preparation',
   ongoing: 'Ongoing',
   completed: 'Completed',
-  proposal: 'Proposal',
+  'analysis-complete': 'Analysis complete',
+  starting: 'Starting',
+  proposal: 'Research proposal',
 };
 
 /** Order of status filter chips on /research/. */
@@ -23,6 +25,8 @@ export const STATUS_ORDER: ProjectStatus[] = [
   'in-preparation',
   'ongoing',
   'completed',
+  'analysis-complete',
+  'starting',
   'proposal',
 ];
 

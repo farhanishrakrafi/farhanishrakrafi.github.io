@@ -1,4 +1,6 @@
 ---
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import CvTimeline from '../components/CvTimeline.astro';
@@ -9,6 +11,7 @@ import { getCv, getProfile } from '../lib/content.ts';
 import { getPublications } from '../lib/publications.ts';
 import { url } from '../lib/paths.ts';
 
+const pdfAvailable = existsSync(resolve(process.cwd(), 'public/cv.pdf'));
 const profile = await getProfile();
 const cv = await getCv();
 const pubs = await getPublications();
@@ -48,7 +51,7 @@ const sections = [
           <p class="text-muted">{profile.affiliation}</p>
           <p class="text-muted">{profile.location}</p>
           <div class="no-print flex flex-wrap items-center gap-3 lg:hidden">
-            <Button href={url('/cv.pdf')} icon="download">Download PDF</Button>
+            {pdfAvailable ? <Button href={url('/cv.pdf')} icon="download">Download PDF</Button> : <p class="text-muted text-sm">Use your browser’s Print option to save this CV as a PDF.</p>}
           </div>
           <ProfileLinks class="no-print -ml-3" />
         </header>
@@ -186,7 +189,7 @@ const sections = [
 
       <aside class="no-print hidden lg:block" aria-label="CV download and contents">
         <div class="sticky top-24 flex flex-col gap-6">
-          <Button href={url('/cv.pdf')} icon="download">Download PDF</Button>
+          {pdfAvailable ? <Button href={url('/cv.pdf')} icon="download">Download PDF</Button> : <p class="text-muted text-sm">Use your browser’s Print option to save this CV as a PDF.</p>}
           <nav aria-labelledby="cv-toc-title" class="text-sm">
             <p id="cv-toc-title" class="eyebrow mb-2">Sections</p>
             <ul class="border-border flex flex-col gap-1.5 border-l pl-4">
