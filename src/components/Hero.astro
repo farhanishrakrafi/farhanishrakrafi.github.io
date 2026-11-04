@@ -21,8 +21,8 @@ const profile = await getProfile();
     <div class="portrait-topline"><span>Science in practice</span><span aria-hidden="true">01 / FIELDWORK</span></div>
     {photo ? (
       <picture>
-        <source type="image/avif" srcset={photo.avifSrcset} />
-        <source type="image/webp" srcset={photo.webpSrcset} />
+        <source type="image/avif" srcset={photo.avifSrcset} sizes={photo.sizes} />
+        <source type="image/webp" srcset={photo.webpSrcset} sizes={photo.sizes} />
         <img src={photo.fallback} alt={profile.photoAlt} width="560" height="560" loading="eager" fetchpriority="high" decoding="async" />
       </picture>
     ) : <div class="portrait-monogram" aria-label={profile.name}>FIR</div>}
