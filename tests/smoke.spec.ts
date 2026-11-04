@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { expect, test } from '@playwright/test';
-import { DRAFT_PROJECTS, ROUTES } from './routes.ts';
+import { DRAFT_PROJECTS, PUBLIC_PROJECTS, ROUTES } from './routes.ts';
+import { SITE } from '../src/config/site.ts';
 
 for (const route of ROUTES) {
   test(`page structure: /${route}`, async ({ page }) => {
@@ -33,19 +34,21 @@ test('draft projects are not built and not in the sitemap', async ({ page }) => 
     expect(response?.status()).toBe(404);
   }
   await page.goto('research/');
-  await expect(page.locator('[data-project]')).toHaveCount(2);
+  await expect(page.locator('[data-project]')).toHaveCount(PUBLIC_PROJECTS.length);
 });
 
 test('unpublished findings are hidden', async ({ page }) => {
-  await page.goto('research/mdr-ecoli-st361-genomics/');
-  await expect(page.locator('#findings + p')).toHaveText('Results will be shared after publication.');
+  for (const project of PUBLIC_PROJECTS.filter((project) => !project.resultsPublic)) {
+    await page.goto(`research/${project.slug}/`);
+    await expect(page.locator('#findings + p')).toHaveText('Results will be shared after publication.');
+  }
 });
 
 test('species and gene names are italic', async ({ page }) => {
   await page.goto('research/mdr-ecoli-st361-genomics/');
   await expect(page.locator('h1 em', { hasText: 'Escherichia coli' })).toHaveCount(1);
   await expect(page.locator('h1 em', { hasText: 'blaNDM-5' })).toHaveCount(1);
-  await expect(page.locator('.prose em', { hasText: 'blaOXA-181' }).first()).toBeVisible();
+  await expect(page.locator('h1 em', { hasText: 'blaOXA-181' })).toHaveCount(1);
 });
 
 test('theme toggle switches and remembers the theme', async ({ page }) => {
@@ -60,12 +63,17 @@ test('theme toggle switches and remembers the theme', async ({ page }) => {
 });
 
 test('research filters read and write the URL', async ({ page }) => {
+  const matching = PUBLIC_PROJECTS.filter((project) => project.themes.includes('drug-discovery'));
   await page.goto('research/?theme=drug-discovery');
-  await expect(page.locator('[data-project-list] > li:visible')).toHaveCount(1);
-  await expect(page.locator('[data-project-list] > li:visible')).toContainText('butyrylcholinesterase');
+  await expect(page.locator('[data-project-list] > li:visible')).toHaveCount(matching.length);
+  for (const project of matching) {
+    await expect(
+      page.locator(`[data-project-list] > li:visible a[href="${SITE.base}/research/${project.slug}/"]`),
+    ).toBeVisible();
+  }
   await page.locator('[data-filter="theme"][data-value="drug-discovery"]').click();
   await expect(page).toHaveURL(/\/research\/$/);
-  await expect(page.locator('[data-project-list] > li:visible')).toHaveCount(2);
+  await expect(page.locator('[data-project-list] > li:visible')).toHaveCount(PUBLIC_PROJECTS.length);
 });
 
 test('cite dialog opens, switches format, closes with Escape and returns focus', async ({ page }) => {
