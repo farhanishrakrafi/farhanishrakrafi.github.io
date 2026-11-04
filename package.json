@@ -59,6 +59,9 @@
     "tsx": "^4.23.15"
   },
   "overrides": {
-    "katex": "$katex"
+    "katex": "$katex",
+    "satori": {
+      "fflate": "0.7.5"
+    }
   }
 }

@@ -1,10 +1,18 @@
-# Farhan Ishrak Rafi: academic website
+# Farhan Ishrak Rafi: biology and AI evaluation portfolio
 
-A static, zero-cost academic profile built with [Astro](https://astro.build) and hosted on GitHub Pages.
+A static portfolio giving biological research and scientific AI evaluation equal prominence, built with [Astro](https://astro.build) and hosted on GitHub Pages.
 All content lives in plain YAML and Markdown files; every push to `main` rebuilds and redeploys the site in about three minutes.
 
 - **Live site:** https://farhanishrakrafi.github.io
 - **Specification:** [SPEC.md](SPEC.md). **Rules for AI assistants:** [CLAUDE.md](CLAUDE.md).
+
+## November 2026 portfolio refresh
+
+The homepage, shared theme and research index use an editorial teal and ivory design with a responsive lab portrait. The AI Evaluation page gives public AI work its own space. Nine public research entries use the supplied titles and statuses; unpublished findings remain hidden. The microbiome project remains a draft because ownership is unconfirmed.
+
+The supplied profile informs the content. The published article author list and contribution statement were checked against the publisher. Unknown degree completion dates, Mercor dates and a proposed laboratory rename are not invented. Data is still edited in YAML/MDX. AI-page role descriptions live in `src/pages/ai-evaluation.astro`.
+
+For a production-like local preview: `npm ci`, `npm run build:site`, then `npm run preview`. Search is indexed in the build. GitHub Actions generates the CV PDF before deployment; local previews without LaTeX show a print-to-PDF instruction instead of a broken download.
 
 ---
 
@@ -15,11 +23,7 @@ GitHub Pages is switched on, and the site is live.
 
 ### Still to do (all free)
 
-1. **Photo.** First remove the location data that phones store in photos (this repository is public;
-   [how to](src/assets/README.md)). Then open the [`src/assets`](src/assets) folder on GitHub, click
-   **Add file > Upload files**, drag your headshot in and click **Commit changes**.
-   Until then the site shows your initials. If a photo still holds its location, the site will not
-   update and the failed run in the **Actions** tab says so.
+1. **Photo.** The current lab photograph is included and optimized at build time. Replace `src/assets/photo.jpg` to change it.
 2. **Confirm the facts marked `CONFIRM`** (list below). Easiest: ask Claude Code to walk you through them.
 3. **ORCID and Google Scholar.** Create both (use the exact name "Farhan Ishrak Rafi"), claim the *Scientific Reports* paper,
    and paste the profile URLs into `links` in `src/data/profile.yaml`. Empty links stay hidden.
@@ -37,13 +41,13 @@ GitHub Pages is switched on, and the site is live.
 
 Search the repository for `CONFIRM` to find every item below.
 
-- [ ] How your name appears in the *Scientific Reports* author list (`nameVariants` in `profile.yaml`).
+- [x] The *Scientific Reports* author list and contribution statement have been verified.
 - [ ] Journal quartile badge: add `quartile` with its source and year in `publications.yaml`, or leave it out.
 - [ ] B.Sc. completion year (`end` in `cv.yaml`) and dates for the scientific AI evaluation work.
 - [ ] Wording of the research statement (`src/data/research-statement.md`).
-- [ ] Your contribution, dates and methods on the two public projects (`src/content/projects/`).
+- [ ] Any new contribution details, dates and methods on public projects (`src/content/projects/`).
 - [ ] Co-authors are happy for the thesis title to be public.
-- [ ] Which draft projects may go public, and with what wording.
+- [x] Eight supplied unpublished titles and statuses were approved for public display. Results remain hidden.
 - [ ] Professional experience shows only what is already public on LinkedIn.
 - [ ] The two draft notes in `src/content/notes/` (they stay hidden until `draft: false`).
 
