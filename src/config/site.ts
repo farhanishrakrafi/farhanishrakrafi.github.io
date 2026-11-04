@@ -35,12 +35,13 @@ export const SITE = {
   lang: 'en',
   locale: 'en_GB',
   titleSuffix: 'Farhan Ishrak Rafi',
-  homeTitle: 'Farhan Ishrak Rafi · Biochemist and computational biologist',
+  homeTitle: 'Farhan Ishrak Rafi · Biology & scientific AI evaluation',
 } as const;
 
 /** Header navigation, in display order. `Notes` hides itself until a note is public. */
 export const NAV = [
   { label: 'Research', href: '/research/' },
+  { label: 'AI Evaluation', href: '/ai-evaluation/' },
   { label: 'Publications', href: '/publications/' },
   { label: 'CV', href: '/cv/' },
   { label: 'Notes', href: '/notes/' },
