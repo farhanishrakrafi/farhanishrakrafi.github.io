@@ -1,136 +1,71 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import ThemeCard from '../components/ThemeCard.astro';
-import ProjectCard from '../components/ProjectCard.astro';
 import PublicationItem from '../components/PublicationItem.astro';
-import SkillMatrix from '../components/SkillMatrix.astro';
-import NewsList from '../components/NewsList.astro';
-import Icon from '../components/Icon.astro';
-import { getCv, getNews, getProfile, getProjects, getThemes } from '../lib/content.ts';
+import { getProfile, getProjects, STATUS_LABELS, THEME_LABELS } from '../lib/content.ts';
 import { getPublications } from '../lib/publications.ts';
 import { heroPhoto } from '../lib/photo.ts';
 import { absoluteUrl, url } from '../lib/paths.ts';
-
+import { italicize } from '../lib/italics.ts';
 const profile = await getProfile();
-const cv = await getCv();
-const themes = await getThemes();
-const featured = (await getProjects()).filter((p) => p.data.featured).slice(0, 3);
-const selected = (await getPublications()).filter((p) => p.selected).slice(0, 3);
-const news = (await getNews()).slice(0, 3);
+const projects = await getProjects();
+const selectedProjects = ['mdr-ecoli-st361-genomics', 'buche-alzheimers-screening', 'sjogren-multiomics'].flatMap(id => projects.filter(p => p.id === id));
+const publications = (await getPublications()).filter(p => p.selected);
 const photo = await heroPhoto(profile.photo);
-
-const sameAs = Object.values(profile.links).filter((l): l is string => Boolean(l));
 const person = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: profile.name,
-  jobTitle: 'Biochemist and computational biologist',
-  description: profile.researchStatement,
-  url: absoluteUrl('/', Astro.site),
-  image: photo ? new URL(photo.fallback, Astro.site).toString() : undefined,
-  affiliation: {
-    '@type': 'Organization',
-    name: profile.affiliation,
-    parentOrganization: { '@type': 'CollegeOrUniversity', name: profile.institution },
-  },
+  '@context': 'https://schema.org', '@type': 'Person', name: profile.name,
+  jobTitle: 'Biochemist and scientific AI evaluator', description: profile.researchStatement,
+  url: absoluteUrl('/', Astro.site), image: photo ? new URL(photo.fallback, Astro.site).toString() : undefined,
   alumniOf: { '@type': 'CollegeOrUniversity', name: profile.institution },
   homeLocation: { '@type': 'Place', name: profile.location },
-  knowsAbout: [
-    'Antimicrobial resistance',
-    'Bacterial genomics',
-    'Microbiology',
-    'Molecular docking',
-    'Molecular dynamics',
-    'Computational drug discovery',
-    'Multi-omics',
-  ],
-  sameAs,
+  knowsAbout: ['Biochemistry', 'Bacterial genomics', 'Computational drug discovery', 'AI evaluation', 'Scientific benchmarking'],
+  sameAs: Object.values(profile.links).filter(Boolean),
 };
-
-const description =
-  'Farhan Ishrak Rafi, biochemist in Bangladesh working on antimicrobial resistance, bacterial genomics and computational drug discovery.';
 ---
-
-<BaseLayout description={description} ogKey="home" ogType="profile" jsonLd={[person]} preloadImage={photo?.avifSrcset}>
-  <div class="container-site flex flex-col gap-16 pb-6">
-    <div class="flex flex-col gap-6">
-      <Hero photo={photo} />
+<BaseLayout description="Farhan Ishrak Rafi is a biochemist and scientific AI evaluator in Dhaka, working in bacterial genomics, drug discovery and expert benchmarking." ogKey="home" ogType="profile" jsonLd={[person]} preloadImage={photo?.avifSrcset}>
+  <div class="container-site homepage">
+    <Hero photo={photo} />
+    <div class="evidence-strip" aria-label="Background and expertise">
+      <span>Biochemistry &amp; Molecular Biology<br /><strong>University of Rajshahi</strong></span>
+      <span>Peer-reviewed research<br /><strong><a href={url('/publications/')}>Scientific Reports, 2025 ↗</a></strong></span>
+      <span>Scientific computing<br /><strong>R · Python · Linux</strong></span>
     </div>
-
-    <section aria-labelledby="themes-title">
-      <h2 id="themes-title" class="section-title">Research themes</h2>
-      <div class="grid gap-4 md:grid-cols-3">
-        {themes.map((theme) => <ThemeCard theme={theme} />)}
+    <section class="home-section" aria-labelledby="practice-title">
+      <div class="section-heading"><p class="section-label">01 / Areas of practice</p><h2 id="practice-title">Two disciplines.<br />One scientific mindset.</h2></div>
+      <div class="practice-grid">
+        <article class="practice-panel science-panel">
+          <div class="practice-kicker"><span>Biological research</span><span aria-hidden="true">A /</span></div>
+          <h3>From the culture plate<br />to the genome.</h3>
+          <p>Connecting wet-lab microbiology, bacterial genomics and computational drug discovery to investigate biological questions.</p>
+          <ul class="practice-topics"><li>Antimicrobial resistance</li><li>Computational drug discovery</li><li>Multi-omics analysis</li></ul>
+          <a class="text-link" href={url('/research/')}>Explore the research <span aria-hidden="true">↗</span></a>
+          <svg class="practice-art genome-art" viewBox="0 0 220 220" aria-hidden="true"><g fill="none" stroke="currentColor"><circle cx="110" cy="110" r="84" stroke-width="11" stroke-dasharray="2 5 21 4 3 5 11 3"/><circle cx="110" cy="110" r="66" stroke-width="5" stroke-dasharray="24 6 14 5 3 4"/><circle cx="110" cy="110" r="54"/><path d="M60 92 Q110 25 167 127 M68 153 Q119 76 154 68 M43 119 Q110 165 175 107"/></g></svg>
+        </article>
+        <article class="practice-panel ai-panel">
+          <div class="practice-kicker"><span>Scientific AI evaluation</span><span aria-hidden="true">B /</span></div>
+          <h3>Putting intelligent<br />systems to the test.</h3>
+          <p>Applying domain expertise to biology benchmarks, model evaluation and training-data quality across scientific and multilingual tasks.</p>
+          <ul class="practice-topics"><li>Expert benchmark authorship</li><li>Model &amp; tool-use evaluation</li><li>Rubric design &amp; quality assurance</li></ul>
+          <a class="text-link" href={url('/ai-evaluation/')}>Explore AI evaluation <span aria-hidden="true">↗</span></a>
+          <svg class="practice-art network-art" viewBox="0 0 220 220" aria-hidden="true"><g stroke="currentColor" fill="none"><path d="M40 50L110 30 180 65 164 157 110 185 40 155 40 50 164 157 110 30 40 155 180 65 110 185 40 50M40 50L180 65M40 155L164 157"/><circle cx="40" cy="50" r="6"/><circle cx="110" cy="30" r="6"/><circle cx="180" cy="65" r="6"/><circle cx="164" cy="157" r="6"/><circle cx="110" cy="185" r="6"/><circle cx="40" cy="155" r="6"/></g></svg>
+        </article>
       </div>
     </section>
-
-    {
-      featured.length > 0 && (
-        <section aria-labelledby="featured-title">
-          <div class="mb-4 flex items-baseline justify-between gap-4">
-            <h2 id="featured-title" class="section-title mb-0">
-              Featured projects
-            </h2>
-            <a href={url('/research/')} class="inline-flex items-center gap-1 font-semibold">
-              All projects <Icon name="arrow-right" size={16} />
-            </a>
-          </div>
-          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((project) => (
-              <ProjectCard project={project} />
-            ))}
-          </div>
-        </section>
-      )
-    }
-
-    {
-      selected.length > 0 && (
-        <section aria-labelledby="pubs-title">
-          <div class="mb-4 flex items-baseline justify-between gap-4">
-            <h2 id="pubs-title" class="section-title mb-0">
-              Selected publications
-            </h2>
-            <a href={url('/publications/')} class="inline-flex items-center gap-1 font-semibold">
-              All publications <Icon name="arrow-right" size={16} />
-            </a>
-          </div>
-          <ol class="card divide-border flex flex-col divide-y">
-            {selected.map((pub) => (
-              <li class="p-5">
-                <PublicationItem pub={pub} />
-              </li>
-            ))}
-          </ol>
-        </section>
-      )
-    }
-
-    <section aria-labelledby="methods-title">
-      <div class="mb-4 flex items-baseline justify-between gap-4">
-        <h2 id="methods-title" class="section-title mb-0">Methods</h2>
-        <a href={url('/cv/#skills')} class="inline-flex items-center gap-1 font-semibold">
-          All skills <Icon name="arrow-right" size={16} />
-        </a>
-      </div>
-      <SkillMatrix skills={cv.skills} limit={5} />
+    <section class="home-section selected-work" aria-labelledby="work-title">
+      <div class="section-heading"><div><p class="section-label">02 / Research in focus</p><h2 id="work-title">Questions I'm working on.</h2></div><a class="text-link" href={url('/research/')}>All research <span aria-hidden="true">↗</span></a></div>
+      <ol class="work-list">{selectedProjects.map((p, i) => <li class="work-row">
+        <span class="work-number" aria-hidden="true">0{i+1}</span>
+        <div class="work-main"><p class="work-theme">{p.data.themes.map(t => THEME_LABELS[t]).join(' / ')}</p><h3><a href={url(`/research/${p.id}/`)} set:html={italicize(p.data.title)} /></h3><p set:html={italicize(p.data.summary)} /></div>
+        <div class="work-status"><span>{STATUS_LABELS[p.data.status]}</span><span class="work-arrow" aria-hidden="true">↗</span></div>
+      </li>)}</ol>
     </section>
-
-    {
-      news.length > 0 && (
-        <section aria-labelledby="news-title">
-          <div class="mb-4 flex items-baseline justify-between gap-4">
-            <h2 id="news-title" class="section-title mb-0">
-              Latest news
-            </h2>
-            <a href={url('/news/')} class="inline-flex items-center gap-1 font-semibold">
-              All news <Icon name="arrow-right" size={16} />
-            </a>
-          </div>
-          <NewsList items={news} />
-        </section>
-      )
-    }
+    <section class="home-section publication-feature" aria-labelledby="publication-title">
+      <div class="publication-aside"><p class="section-label">03 / Published work</p><h2 id="publication-title">Science,<br /><em>in the literature.</em></h2><p>Peer-reviewed work with an open record of methods and contributions.</p><a class="text-link" href={url('/publications/')}>Publication &amp; citation <span aria-hidden="true">↗</span></a></div>
+      <div class="publication-paper"><p class="paper-eyebrow">Scientific Reports <span>2025 · Open access</span></p>{publications.map(pub => <PublicationItem pub={pub} />)}<p class="contribution-note"><strong>My contribution</strong> Data analysis and manuscript writing, as credited in the published article.</p></div>
+    </section>
+    <section class="home-section about-strip" aria-labelledby="about-title">
+      <p class="section-label">04 / Beyond the work</p><div><h2 id="about-title">A scientist. A careful reviewer.<br /><em>A curious collaborator.</em></h2><p>My background is in Biochemistry and Molecular Biology at the University of Rajshahi. Alongside research and AI evaluation, I've helped lead scientific outreach through the university's American Society for Microbiology student chapter.</p><div class="about-links"><a class="text-link" href={url('/cv/')}>View my CV <span aria-hidden="true">↗</span></a><span>Bengali · English · Hindi</span></div></div>
+    </section>
+    <section class="contact-band" aria-labelledby="contact-band-title"><div><p class="section-label">Have a question worth exploring?</p><h2 id="contact-band-title">Let's put our minds to it.</h2><p>Biological research, scientific AI evaluation, and thoughtful collaborations.</p></div><a href={url('/contact/')} class="contact-circle" aria-label="Get in touch"><span aria-hidden="true">↗</span><span>Get in touch</span></a></section>
   </div>
 </BaseLayout>
